@@ -389,109 +389,111 @@ export default function GameApp({ session, onLogout }) {
         )}
       </div>
 
-      {!pet ? (
-        <div className="auth-container" style={{ padding: 0 }}>
-          <div className="glass-card">
-            <h2>{t('adopt_pet')}</h2>
-            <p>{t('adopt_desc')}</p>
-            <button className="btn-primary" onClick={() => void createPet()}>{t('take_bobik')}</button>
+      <div className="game-content-shell">
+        {!pet ? (
+          <div className="auth-container" style={{ padding: 0 }}>
+            <div className="glass-card">
+              <h2>{t('adopt_pet')}</h2>
+              <p>{t('adopt_desc')}</p>
+              <button className="btn-primary" onClick={() => void createPet()}>{t('take_bobik')}</button>
+            </div>
           </div>
-        </div>
-      ) : pet.died_at ? (
-        <div className="dead-pet-screen">
-          <div className="pet-avatar" style={{ filter: 'grayscale(1)', animation: 'none', fontSize: '8rem' }}>👻</div>
-          <h2>{t('bobik_died')}</h2>
-          <p>{t('lived_for')} {calculateTimeAlive(new Date(pet.born_at), new Date(pet.died_at))}</p>
-          <button className="btn-primary" onClick={() => void createPet()}>{t('adopt_new')}</button>
-        </div>
-      ) : activeTab === 'shop' ? (
-        <ShopPanel
-          pet={pet}
-          onBuyPremiumFood={buyPremiumFood}
-          onBuyMedicine={buyMedicine}
-          onBuyMagicHat={buyMagicHat}
-          onBuyEnvSunset={buyEnvSunset}
-          onBuyEnvNight={buyEnvNight}
-        />
-      ) : activeTab === 'settings' ? (
-        <SettingsPanel
-          profileName={profileName}
-          onProfileNameChange={setProfileName}
-          onSaveProfile={handleUpdateProfile}
-          onCycleLang={handleCycleLang}
-          isMuted={isMuted}
-          onToggleMute={handleToggleMute}
-          onLogout={onLogout}
-        />
-      ) : (
-        <div className="game-main-layout">
-          <section className="game-stage-column">
-            <div className="pet-stage-card">
-              <div className="pet-display">
-                <div className="particles-container">
-                  {particles.map((particle) => (
-                    <div key={particle.id} className="particle" style={{'--vx': particle.vx, '--vy': particle.vy}}>
-                      {particle.emoji}
-                    </div>
-                  ))}
+        ) : pet.died_at ? (
+          <div className="dead-pet-screen">
+            <div className="pet-avatar" style={{ filter: 'grayscale(1)', animation: 'none', fontSize: '8rem' }}>👻</div>
+            <h2>{t('bobik_died')}</h2>
+            <p>{t('lived_for')} {calculateTimeAlive(new Date(pet.born_at), new Date(pet.died_at))}</p>
+            <button className="btn-primary" onClick={() => void createPet()}>{t('adopt_new')}</button>
+          </div>
+        ) : activeTab === 'shop' ? (
+          <ShopPanel
+            pet={pet}
+            onBuyPremiumFood={buyPremiumFood}
+            onBuyMedicine={buyMedicine}
+            onBuyMagicHat={buyMagicHat}
+            onBuyEnvSunset={buyEnvSunset}
+            onBuyEnvNight={buyEnvNight}
+          />
+        ) : activeTab === 'settings' ? (
+          <SettingsPanel
+            profileName={profileName}
+            onProfileNameChange={setProfileName}
+            onSaveProfile={handleUpdateProfile}
+            onCycleLang={handleCycleLang}
+            isMuted={isMuted}
+            onToggleMute={handleToggleMute}
+            onLogout={onLogout}
+          />
+        ) : (
+          <div className="game-main-layout">
+            <section className="game-stage-column">
+              <div className="pet-stage-card">
+                <div className="pet-display">
+                  <div className="particles-container">
+                    {particles.map((particle) => (
+                      <div key={particle.id} className="particle" style={{'--vx': particle.vx, '--vy': particle.vy}}>
+                        {particle.emoji}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pet-display-canvas">
+                    <Scene3D isSick={pet.isSick} aliveMins={aliveMins} hasHat={pet.hasHat} genetics={pet.genetics} environment={pet.environment} actionState={actionState} onPetClick={handlePetClick} />
+                  </div>
                 </div>
 
-                <div className="pet-display-canvas">
-                  <Scene3D isSick={pet.isSick} aliveMins={aliveMins} hasHat={pet.hasHat} genetics={pet.genetics} environment={pet.environment} actionState={actionState} onPetClick={handlePetClick} />
+                <div className="pet-status pet-status-card">
+                  <div className="pet-name">
+                    Bobik <span className="pet-evolution-name">{getEvolutionData(aliveMins, t).name}</span>
+                  </div>
+
+                  {(() => {
+                    const evolution = getEvolutionData(aliveMins, t);
+                    if (!evolution.nextT) {
+                      return null;
+                    }
+
+                    const progress = ((aliveMins - evolution.currentT) / (evolution.nextT - evolution.currentT)) * 100;
+                    return (
+                      <div className="pet-evolution-progress">
+                        <div style={{width: `${Math.min(100, Math.max(0, progress))}%`, height: '100%', background: '#fbbf24', transition: 'width 1s linear'}}/>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="pet-status-msg" style={{color: pet.isSick ? '#ef4444' : 'var(--text-primary)'}}>
+                    {statusMessage}
+                    {pet.isSick && <div style={{fontSize: '0.85rem', marginTop: '0.1rem'}}>{t('disease_warning')}</div>}
+                  </div>
                 </div>
               </div>
+            </section>
 
-              <div className="pet-status pet-status-card">
-                <div className="pet-name">
-                  Bobik <span className="pet-evolution-name">{getEvolutionData(aliveMins, t).name}</span>
-                </div>
-
-                {(() => {
-                  const evolution = getEvolutionData(aliveMins, t);
-                  if (!evolution.nextT) {
-                    return null;
-                  }
-
-                  const progress = ((aliveMins - evolution.currentT) / (evolution.nextT - evolution.currentT)) * 100;
-                  return (
-                    <div className="pet-evolution-progress">
-                      <div style={{width: `${Math.min(100, Math.max(0, progress))}%`, height: '100%', background: '#fbbf24', transition: 'width 1s linear'}}/>
-                    </div>
-                  );
-                })()}
-
-                <div className="pet-status-msg" style={{color: pet.isSick ? '#ef4444' : 'var(--text-primary)'}}>
-                  {statusMessage}
-                  {pet.isSick && <div style={{fontSize: '0.85rem', marginTop: '0.1rem'}}>{t('disease_warning')}</div>}
-                </div>
+            <aside className="game-side-column">
+              <div className="stats-container game-panel-card">
+                <StatBar label={STATS.hunger.label} value={pet.hunger} colorClass={STATS.hunger.color} />
+                <StatBar label={STATS.energy.label} value={pet.energy} colorClass={STATS.energy.color} />
+                <StatBar label={STATS.happiness.label} value={pet.happiness} colorClass={STATS.happiness.color} />
               </div>
-            </div>
-          </section>
 
-          <aside className="game-side-column">
-            <div className="stats-container game-panel-card">
-              <StatBar label={STATS.hunger.label} value={pet.hunger} colorClass={STATS.hunger.color} />
-              <StatBar label={STATS.energy.label} value={pet.energy} colorClass={STATS.energy.color} />
-              <StatBar label={STATS.happiness.label} value={pet.happiness} colorClass={STATS.happiness.color} />
-            </div>
-
-            <div className="game-panel-card action-buttons">
-              <button className="action-btn btn-act-feed" onClick={actFeed} style={{opacity: pet.energy < 5 ? 0.3 : 1}}>
-                <span style={{fontSize:'1.5rem'}}>🍖</span> {t('action_food')}
-              </button>
-              <button className="action-btn btn-act-play" onClick={actPlay} style={{opacity: pet.energy < 10 ? 0.3 : 1}}>
-                <span style={{fontSize:'1.5rem'}}>🎾</span> {t('action_play_btn')}
-              </button>
-              <button className="action-btn btn-act-sleep" onClick={actSleep}>
-                <span style={{fontSize:'1.5rem'}}>💤</span> {t('action_sleep_btn')}
-              </button>
-              <button className="action-btn btn-act-work" onClick={actWork} style={{opacity: (pet.energy < 20 || pet.hunger < 30) ? 0.3 : 1}}>
-                <span style={{fontSize:'1.5rem'}}>💎</span> {t('action_treasure')}
-              </button>
-            </div>
-          </aside>
-        </div>
-      )}
+              <div className="game-panel-card action-buttons">
+                <button className="action-btn btn-act-feed" onClick={actFeed} style={{opacity: pet.energy < 5 ? 0.3 : 1}}>
+                  <span style={{fontSize:'1.5rem'}}>🍖</span> {t('action_food')}
+                </button>
+                <button className="action-btn btn-act-play" onClick={actPlay} style={{opacity: pet.energy < 10 ? 0.3 : 1}}>
+                  <span style={{fontSize:'1.5rem'}}>🎾</span> {t('action_play_btn')}
+                </button>
+                <button className="action-btn btn-act-sleep" onClick={actSleep}>
+                  <span style={{fontSize:'1.5rem'}}>💤</span> {t('action_sleep_btn')}
+                </button>
+                <button className="action-btn btn-act-work" onClick={actWork} style={{opacity: (pet.energy < 20 || pet.hunger < 30) ? 0.3 : 1}}>
+                  <span style={{fontSize:'1.5rem'}}>💎</span> {t('action_treasure')}
+                </button>
+              </div>
+            </aside>
+          </div>
+        )}
+      </div>
 
       <BottomNav hasActivePet={Boolean(pet && !pet.died_at)} activeTab={activeTab} onTabChange={setActiveTab} isSick={Boolean(pet?.isSick)} />
     </div>
