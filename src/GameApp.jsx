@@ -26,6 +26,7 @@ import {
   persistPet,
   saveProfileSettings,
 } from './services/gameService';
+import { claimPlayerRewards } from './services/rewardService';
 import { bindTelegramBackButton, triggerTelegramHaptic } from './lib/telegram/webApp';
 import { trackPlayerEventSafely } from './services/analyticsService';
 
@@ -63,6 +64,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
   const [accountCurrentPassword, setAccountCurrentPassword] = useState('');
   const [accountNewPassword, setAccountNewPassword] = useState('');
   const [accountConfirmPassword, setAccountConfirmPassword] = useState('');
+  const [sessionTrackingReady, setSessionTrackingReady] = useState(false);
   const actionLockRef = useRef(false);
   const analyticsSessionTrackedRef = useRef(false);
   const trackedDeathPetIdRef = useRef('');
@@ -170,12 +172,26 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     }
 
     analyticsSessionTrackedRef.current = true;
-    void trackPlayerEventSafely('session_started', {
-      hasActivePet: Boolean(pet && !pet.died_at),
-      hasAnyPet: Boolean(pet),
-      activeTab,
-      profileName: savedProfileName,
-    });
+    let isActive = true;
+
+    void (async () => {
+      try {
+        await trackPlayerEventSafely('session_started', {
+          hasActivePet: Boolean(pet && !pet.died_at),
+          hasAnyPet: Boolean(pet),
+          activeTab,
+          profileName: savedProfileName,
+        });
+      } finally {
+        if (isActive) {
+          setSessionTrackingReady(true);
+        }
+      }
+    })();
+
+    return () => {
+      isActive = false;
+    };
   }, [activeTab, loading, pet, savedProfileName]);
 
   useEffect(() => {
@@ -196,15 +212,15 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     });
   }, [pet]);
 
-  const triggerParticle = (emoji) => {
+  const triggerParticle = useCallback((emoji) => {
     const id = Date.now() + Math.random();
     const vx = (Math.random() - 0.5) * 100 + 'px';
     const vy = (Math.random() - 0.5) * 50 + 'px';
     setParticles((currentParticles) => [...currentParticles, { id, emoji, vx, vy }]);
     setTimeout(() => setParticles((currentParticles) => currentParticles.filter((particle) => particle.id !== id)), 1000);
-  };
+  }, []);
 
-  const showFlyout = (event, text, color) => {
+  const showFlyout = useCallback((event, text, color) => {
     let x;
     let y;
 
@@ -220,7 +236,101 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     const id = Date.now() + Math.random();
     setFlyouts((currentFlyouts) => [...currentFlyouts, { id, x, y, text, color }]);
     setTimeout(() => setFlyouts((currentFlyouts) => currentFlyouts.filter((flyout) => flyout.id !== id)), 1000);
-  };
+  }, []);
+
+  const showCenteredFlyout = useCallback((text, color) => {
+    showFlyout(
+      {
+        clientX: window.innerWidth / 2,
+        clientY: window.innerHeight * 0.42,
+      },
+      text,
+      color,
+    );
+  }, [showFlyout]);
+
+  const applyRewardClaimResult = useCallback((rewardResult) => {
+    if (!rewardResult?.granted || !Array.isArray(rewardResult.claims) || rewardResult.claims.length === 0) {
+      return false;
+    }
+
+    setPet((previousPet) => {
+      if (!previousPet) {
+        return previousPet;
+      }
+
+      if (rewardResult.petId && previousPet.id !== rewardResult.petId) {
+        return previousPet;
+      }
+
+      const nextServerPet = Number.isFinite(rewardResult.coinsAfter)
+        ? {
+            ...previousPet,
+            coins: rewardResult.coinsAfter,
+          }
+        : previousPet;
+      const nextPet = applyFranxCoinOverride(nextServerPet);
+
+      if (nextPet && nextServerPet && nextPet.coins !== nextServerPet.coins) {
+        void persistPetState(nextPet).catch((error) => reportError(error));
+      }
+
+      return nextPet;
+    });
+
+    rewardResult.claims.forEach((claim, index) => {
+      if (claim.type === 'account_secured_bonus') {
+        window.setTimeout(() => {
+          showCenteredFlyout(t('reward_account_secured_bonus'), '#10b981');
+        }, index * 220);
+        void trackPlayerEventSafely('account_secured_reward_granted', {
+          amount: claim.amount,
+        });
+      }
+
+      if (claim.type === 'telegram_loyalty_bonus') {
+        window.setTimeout(() => {
+          showCenteredFlyout(t('reward_telegram_loyalty_bonus'), '#38bdf8');
+        }, index * 220);
+        void trackPlayerEventSafely('telegram_loyalty_reward_granted', {
+          amount: claim.amount,
+        });
+      }
+    });
+
+    return true;
+  }, [applyFranxCoinOverride, persistPetState, reportError, showCenteredFlyout]);
+
+  useEffect(() => {
+    if (!sessionTrackingReady || !pet?.id || pet.died_at) {
+      return undefined;
+    }
+
+    const bornAtMs = new Date(pet.born_at).getTime();
+    if (!Number.isFinite(bornAtMs)) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    const timeoutMs = Math.max(0, bornAtMs + 60_000 - Date.now());
+    const timeoutId = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const rewardResult = await claimPlayerRewards();
+          if (!cancelled) {
+            applyRewardClaimResult(rewardResult);
+          }
+        } catch (error) {
+          console.error('Could not claim Telegram loyalty reward', error);
+        }
+      })();
+    }, timeoutMs);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [applyRewardClaimResult, pet?.born_at, pet?.died_at, pet?.id, sessionTrackingReady]);
 
   useEffect(() => {
     if (!pet || pet.died_at) {
@@ -595,6 +705,15 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       triggerTelegramHaptic('success');
       playSound('play');
       showFlyout(event, isPasswordChange ? t('account_password_changed') : t('account_password_set'), '#10b981');
+
+      if (!isPasswordChange) {
+        try {
+          const rewardResult = await claimPlayerRewards();
+          applyRewardClaimResult(rewardResult);
+        } catch (rewardError) {
+          console.error('Could not claim account secured reward', rewardError);
+        }
+      }
     } catch (error) {
       triggerTelegramHaptic('error');
       reportError(error, t('account_access_error'));
