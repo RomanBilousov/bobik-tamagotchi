@@ -6,6 +6,7 @@ const LEGACY_KEYS = {
   muted: 'bobik_muted',
   password: 'bobik_password',
   mockSession: 'mock_session',
+  migrationGlobal: 'bobik_legacy_migrated_v2',
 };
 
 function getStorage() {
@@ -97,10 +98,11 @@ export function readLegacyLeaderboard() {
 }
 
 export function hasLegacyMigrationRun(userId) {
-  return readString(getMigrationKey(userId)) === 'true';
+  return readString(LEGACY_KEYS.migrationGlobal) === 'true' || readString(getMigrationKey(userId)) === 'true';
 }
 
 export function markLegacyMigrationRun(userId) {
+  writeString(LEGACY_KEYS.migrationGlobal, 'true');
   writeString(getMigrationKey(userId), 'true');
 }
 
@@ -108,4 +110,3 @@ export function clearLegacySensitiveData() {
   removeKey(LEGACY_KEYS.password);
   removeKey(LEGACY_KEYS.mockSession);
 }
-

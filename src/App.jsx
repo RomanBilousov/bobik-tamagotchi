@@ -40,29 +40,33 @@ function App() {
     syncLocalSettingsFromProfile(profile);
 
     if (!hasLegacyMigrationRun(userId)) {
-      const petCount = await getPetCount(userId);
+      try {
+        const petCount = await getPetCount(userId);
 
-      if (petCount === 0) {
-        const legacyPet = readLegacyPet();
-        const legacyLeaderboard = readLegacyLeaderboard();
-        const isLegacyPetAlreadyInLeaderboard =
-          legacyPet?.died_at &&
-          legacyLeaderboard.some(
-            (entry) =>
-              entry?.born_at === legacyPet.born_at &&
-              entry?.died_at === legacyPet.died_at,
-          );
+        if (petCount === 0) {
+          const legacyPet = readLegacyPet();
+          const legacyLeaderboard = readLegacyLeaderboard();
+          const isLegacyPetAlreadyInLeaderboard =
+            legacyPet?.died_at &&
+            legacyLeaderboard.some(
+              (entry) =>
+                entry?.born_at === legacyPet.born_at &&
+                entry?.died_at === legacyPet.died_at,
+            );
 
-        if (legacyPet && !isLegacyPetAlreadyInLeaderboard) {
-          await importLegacyPet(userId, legacyPet);
+          if (legacyPet && !isLegacyPetAlreadyInLeaderboard) {
+            await importLegacyPet(userId, legacyPet);
+          }
+
+          if (legacyLeaderboard.length > 0) {
+            await importLegacyLeaderboard(userId, legacyLeaderboard);
+          }
         }
-
-        if (legacyLeaderboard.length > 0) {
-          await importLegacyLeaderboard(userId, legacyLeaderboard);
-        }
+      } catch (error) {
+        console.error('Skipping legacy data migration', error);
+      } finally {
+        markLegacyMigrationRun(userId);
       }
-
-      markLegacyMigrationRun(userId);
     }
 
     clearLegacySensitiveData();

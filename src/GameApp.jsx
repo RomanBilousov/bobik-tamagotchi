@@ -100,13 +100,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     try {
       setLoading(true);
       setErrorMessage('');
-      const [
-        { pet: loadedPet, profile },
-        accessStatus,
-      ] = await Promise.all([
-        loadGameData(session.user.id, STATS),
-        loadAccountAccess(),
-      ]);
+      const { pet: loadedPet, profile } = await loadGameData(session.user.id, STATS);
       const nextProfileName = profile?.nickname || DEFAULT_PROFILE_NAME;
 
       if (profile) {
@@ -125,8 +119,17 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
 
       const nextPet = applyFranxCoinOverride(loadedPet ?? null, nextProfileName);
       setPet(nextPet);
-      setAccountAccess(accessStatus);
-      setAccountLoginName(accessStatus.loginName || nextProfileName);
+
+      try {
+        const accessStatus = await loadAccountAccess();
+        setAccountAccess(accessStatus);
+        setAccountLoginName(accessStatus.loginName || nextProfileName);
+      } catch (error) {
+        console.error('Could not load account access status', error);
+        setAccountAccess({ hasPassword: false, loginName: '' });
+        setAccountLoginName(nextProfileName);
+      }
+
       clearAccountPasswordInputs();
 
       if (nextPet && loadedPet && nextPet.coins !== loadedPet.coins) {
