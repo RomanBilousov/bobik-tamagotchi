@@ -581,12 +581,16 @@ function PetModel({ userTarget, isSick, actionState, ageScale, hasHat, genetics,
         }
     }
 
+    if (isSick && actionState !== 'sleep') {
+      targetRootY -= 0.04;
+      targetHeadX = Math.max(targetHeadX, 0.18);
+      targetEarDrop += 0.12;
+      tailAmp *= 0.3;
+      tailSpeed = Math.max(1.5, tailSpeed * 0.35);
+    }
+
     if(group.current) {
-        if (isSick && actionState !== 'sleep') {
-           group.current.position.x = Math.sin(time * 30) * 0.02; 
-        } else {
-           group.current.position.x = lerp(group.current.position.x, 0, 0.1);
-        }
+        group.current.position.x = lerp(group.current.position.x, 0, 0.1);
     }
 
     if (tongue.current) {
@@ -762,10 +766,7 @@ export default function Scene3D({ isSick, aliveMins, hasHat, genetics, environme
          setUserTarget(e.point);
       }} />
 
-      {/* Собака больше не статична! Её перемещает собственный RootGroup в компоненте */}
-      <Float speed={2} rotationIntensity={0.02} floatIntensity={0.05}>
-         <PetModel userTarget={userTarget} isSick={isSick} actionState={actionState} ageScale={getAgeScale()} hasHat={hasHat} genetics={genetics} onPetClick={onPetClick} />
-      </Float>
+      <PetModel userTarget={userTarget} isSick={isSick} actionState={actionState} ageScale={getAgeScale()} hasHat={hasHat} genetics={genetics} onPetClick={onPetClick} />
 
       {/* Площадь тени расширена, чтобы покрывать двор */}
       <ContactShadows position={[0, 0.03]} opacity={0.6} scale={40} blur={2.5} far={4} color="#000000" />

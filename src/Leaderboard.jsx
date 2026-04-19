@@ -41,6 +41,19 @@ export default function Leaderboard() {
 
   return (
     <div className="game-container leaderboard-container">
+      <div className="game-header leaderboard-shell-header">
+        <div className="time-alive leaderboard-route-chip">
+          <Trophy size={16} />
+          <span>{leaders.length > 0 ? `TOP ${leaders.length}` : t('nav_lb')}</span>
+        </div>
+
+        <div className="game-header-actions">
+          <Link to="/" className="environment-chip leaderboard-home-link">
+            {t('nav_pet')}
+          </Link>
+        </div>
+      </div>
+
       <div className="game-content-shell leaderboard-content-shell">
         <section className="leaderboard-screen game-panel-card">
           <div className="leaderboard-header">
