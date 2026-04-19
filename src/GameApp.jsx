@@ -14,6 +14,7 @@ import {
 } from './domain/petLogic';
 import { syncLocalSettingsFromProfile } from './lib/storage/legacyLocalStorage';
 import BottomNav from './components/game/BottomNav';
+import LooksPanel from './components/game/LooksPanel';
 import SettingsPanel from './components/game/SettingsPanel';
 import ShopPanel from './components/game/ShopPanel';
 import {
@@ -423,9 +424,13 @@ export default function GameApp({ session, onLogout }) {
             pet={pet}
             onBuyPremiumFood={buyPremiumFood}
             onBuyMedicine={buyMedicine}
-            onBuyMagicHat={buyMagicHat}
             onBuyEnvSunset={buyEnvSunset}
             onBuyEnvNight={buyEnvNight}
+          />
+        ) : activeTab === 'looks' ? (
+          <LooksPanel
+            pet={pet}
+            onBuyMagicHat={buyMagicHat}
           />
         ) : activeTab === 'settings' ? (
           <SettingsPanel

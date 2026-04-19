@@ -42,13 +42,11 @@ export default function ShopPanel({
   pet,
   onBuyPremiumFood,
   onBuyMedicine,
-  onBuyMagicHat,
   onBuyEnvSunset,
   onBuyEnvNight,
 }) {
   const canBuySteak = pet.coins >= 30;
   const canBuyMedicine = pet.coins >= 50 && pet.isSick;
-  const canBuyHat = pet.coins >= 200 && !pet.hasHat;
   const canBuySunset = pet.coins >= 100 && pet.environment !== 'sunset';
   const canBuyNight = pet.coins >= 300 && pet.environment !== 'night';
 
@@ -81,24 +79,6 @@ export default function ShopPanel({
         onClick={onBuyMedicine}
         action={pet.isSick ? <PriceBadge amount={50} /> : t('healthy')}
         tone={pet.isSick ? 'danger' : 'default'}
-      />
-
-      <ShopItem
-        icon="🎩"
-        title={t('magic_hat')}
-        description={t('hat_desc')}
-        status={
-          pet.hasHat
-            ? t('shop_state_owned')
-            : canBuyHat
-              ? t('shop_state_ready')
-              : t('shop_state_need_coins')
-        }
-        statusTone={pet.hasHat ? 'owned' : canBuyHat ? 'ready' : 'muted'}
-        disabled={!canBuyHat}
-        onClick={onBuyMagicHat}
-        action={pet.hasHat ? t('shop_state_owned') : <PriceBadge amount={200} />}
-        tone={pet.hasHat ? 'owned' : 'default'}
       />
 
       <ShopItem

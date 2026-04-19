@@ -1,4 +1,4 @@
-import { Trophy, Activity, ShoppingCart, Settings } from 'lucide-react';
+import { Trophy, Activity, ShoppingCart, Settings, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { t } from '../../i18n';
 
@@ -15,6 +15,10 @@ export default function BottomNav({ hasActivePet, activeTab, onTabChange, isSick
             <ShoppingCart size={24} />
             <span>{t('nav_shop')}</span>
             {isSick && <div className="nav-item-dot"></div>}
+          </button>
+          <button className={`nav-item nav-button-reset ${activeTab === 'looks' ? 'active' : ''}`} onClick={() => onTabChange('looks')} type="button">
+            <Sparkles size={24} />
+            <span>{t('nav_looks')}</span>
           </button>
           <button className={`nav-item nav-button-reset ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => onTabChange('settings')} type="button">
             <Settings size={24} />
