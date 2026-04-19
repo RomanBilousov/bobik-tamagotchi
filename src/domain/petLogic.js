@@ -1,3 +1,5 @@
+import { normalizeHatState } from './hats';
+
 export const MAX_STAT = 100;
 export const DEFAULT_PROFILE_NAME = 'Игрок';
 export const DECAY_RATE_PER_MINUTE = 2;
@@ -40,6 +42,8 @@ export function buildRandomPetDraft(random = Math.random) {
     happiness: 100,
     isSick: false,
     hasHat: false,
+    ownedHats: [],
+    activeHat: null,
     coins: 50,
     genetics: {
       color: colors[Math.floor(random() * colors.length)] || DEFAULT_PET_COLOR,
@@ -53,9 +57,14 @@ export function buildRandomPetDraft(random = Math.random) {
 
 export function buildPetState(basePet, updates = {}) {
   const nowIso = updates.last_synced_at ?? new Date().toISOString();
+  const hatState = normalizeHatState({
+    ...basePet,
+    ...updates,
+  });
   const nextPet = {
     ...basePet,
     ...updates,
+    ...hatState,
     hunger: clampStat(updates.hunger ?? basePet.hunger),
     energy: clampStat(updates.energy ?? basePet.energy),
     happiness: clampStat(updates.happiness ?? basePet.happiness),
@@ -97,7 +106,8 @@ export function applyOfflineDecay(pet, statsConfig, random = Math.random, now = 
     happiness: pet.happiness - (diffMinutes * DECAY_RATE_PER_MINUTE * statsConfig.happiness.drain * multiplier),
     isSick,
     coins: (pet.coins || 0) + Math.floor(diffMinutes * 10),
-    hasHat: pet.hasHat || false,
+    ownedHats: pet.ownedHats || [],
+    activeHat: pet.activeHat || null,
     last_synced_at: now.toISOString(),
   });
 }
@@ -183,4 +193,3 @@ export function getStatusMessage(pet, aliveMins, t) {
 
   return 'ОК';
 }
-

@@ -1,4 +1,5 @@
 import { requireSupabase } from '../lib/supabase/client';
+import { normalizeHatState } from '../domain/hats';
 
 const PET_COLUMNS = [
   'id',
@@ -11,6 +12,8 @@ const PET_COLUMNS = [
   'happiness',
   'is_sick',
   'has_hat',
+  'owned_hats',
+  'active_hat',
   'coins',
   'environment',
   'color',
@@ -63,6 +66,12 @@ function mapRowToPet(row) {
     return null;
   }
 
+  const hatState = normalizeHatState({
+    hasHat: Boolean(row.has_hat),
+    ownedHats: row.owned_hats,
+    activeHat: row.active_hat,
+  });
+
   return {
     id: row.id,
     user_id: row.user_id,
@@ -73,7 +82,7 @@ function mapRowToPet(row) {
     energy: Number(row.energy),
     happiness: Number(row.happiness),
     isSick: Boolean(row.is_sick),
-    hasHat: Boolean(row.has_hat),
+    ...hatState,
     coins: Number(row.coins),
     environment: row.environment,
     genetics: {
@@ -85,6 +94,8 @@ function mapRowToPet(row) {
 }
 
 function mapPetToInsertRow(userId, pet) {
+  const hatState = normalizeHatState(pet);
+
   return {
     user_id: userId,
     born_at: normalizeTimestamp(pet.born_at),
@@ -94,7 +105,9 @@ function mapPetToInsertRow(userId, pet) {
     energy: clampStat(pet.energy),
     happiness: clampStat(pet.happiness),
     is_sick: Boolean(pet.isSick),
-    has_hat: Boolean(pet.hasHat),
+    has_hat: hatState.hasHat,
+    owned_hats: hatState.ownedHats,
+    active_hat: hatState.activeHat,
     coins: normalizeCoins(pet.coins),
     environment: normalizeEnvironment(pet.environment),
     color: pet.genetics?.color || '#df7720',
@@ -105,6 +118,7 @@ function mapPetToInsertRow(userId, pet) {
 
 function mapPetToUpdateRow(pet) {
   const row = {};
+  const hatState = normalizeHatState(pet);
 
   if ('born_at' in pet) {
     row.born_at = normalizeTimestamp(pet.born_at);
@@ -134,8 +148,10 @@ function mapPetToUpdateRow(pet) {
     row.is_sick = Boolean(pet.isSick);
   }
 
-  if ('hasHat' in pet) {
-    row.has_hat = Boolean(pet.hasHat);
+  if ('hasHat' in pet || 'ownedHats' in pet || 'activeHat' in pet) {
+    row.has_hat = hatState.hasHat;
+    row.owned_hats = hatState.ownedHats;
+    row.active_hat = hatState.activeHat;
   }
 
   if ('coins' in pet) {
@@ -254,6 +270,8 @@ export async function importLegacyPet(userId, legacyPet) {
     happiness: legacyPet.happiness,
     isSick: legacyPet.isSick,
     hasHat: legacyPet.hasHat,
+    ownedHats: legacyPet.ownedHats,
+    activeHat: legacyPet.activeHat,
     coins: legacyPet.coins,
     environment: legacyPet.environment,
     genetics: legacyPet.genetics,
@@ -280,6 +298,8 @@ export async function importLegacyLeaderboard(userId, entries) {
       happiness: entry.happiness ?? 0,
       isSick: entry.isSick,
       hasHat: entry.hasHat,
+      ownedHats: entry.ownedHats,
+      activeHat: entry.activeHat,
       coins: entry.coins ?? 0,
       environment: entry.environment,
       genetics: entry.genetics,
@@ -297,4 +317,3 @@ export async function importLegacyLeaderboard(userId, entries) {
 
   return (data ?? []).map(mapRowToPet);
 }
-

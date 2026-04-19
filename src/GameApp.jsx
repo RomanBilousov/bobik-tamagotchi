@@ -12,6 +12,7 @@ import {
   getEvolutionData,
   getStatusMessage,
 } from './domain/petLogic';
+import { getHatById, normalizeHatState } from './domain/hats';
 import { syncLocalSettingsFromProfile } from './lib/storage/legacyLocalStorage';
 import BottomNav from './components/game/BottomNav';
 import SettingsPanel from './components/game/SettingsPanel';
@@ -260,13 +261,41 @@ export default function GameApp({ session, onLogout }) {
     }
   };
 
-  const buyMagicHat = (event) => {
-    if (pet.coins >= 200 && !pet.hasHat) {
-      syncAction({ coins: pet.coins - 200, hasHat: true });
-      playSound('play');
-      triggerParticle('✨');
-      showFlyout(event, `-200 ${t('coins_short')}`, '#ef4444');
+  const handleHatAction = (hatId, price, event) => {
+    const hatState = normalizeHatState(pet);
+    const selectedHat = getHatById(hatId);
+
+    if (!selectedHat) {
+      return;
     }
+
+    if (hatState.ownedHats.includes(hatId)) {
+      if (hatState.activeHat === hatId) {
+        return;
+      }
+
+      syncAction({
+        ownedHats: hatState.ownedHats,
+        activeHat: hatId,
+      });
+      playSound('play');
+      triggerParticle(selectedHat.icon);
+      showFlyout(event, t('shop_hat_equipped'), '#10b981');
+      return;
+    }
+
+    if (pet.coins < price) {
+      return;
+    }
+
+    syncAction({
+      coins: pet.coins - price,
+      ownedHats: [...hatState.ownedHats, hatId],
+      activeHat: hatId,
+    });
+    playSound('play');
+    triggerParticle(selectedHat.icon);
+    showFlyout(event, `-${price} ${t('coins_short')}`, '#ef4444');
   };
 
   const buyEnvSunset = (event) => {
@@ -423,7 +452,7 @@ export default function GameApp({ session, onLogout }) {
             pet={pet}
             onBuyPremiumFood={buyPremiumFood}
             onBuyMedicine={buyMedicine}
-            onBuyMagicHat={buyMagicHat}
+            onHatAction={handleHatAction}
             onBuyEnvSunset={buyEnvSunset}
             onBuyEnvNight={buyEnvNight}
           />
@@ -451,7 +480,7 @@ export default function GameApp({ session, onLogout }) {
                   </div>
 
                   <div className="pet-display-canvas">
-                    <Scene3D isSick={pet.isSick} aliveMins={aliveMins} hasHat={pet.hasHat} genetics={pet.genetics} environment={pet.environment} actionState={actionState} onPetClick={handlePetClick} />
+                    <Scene3D isSick={pet.isSick} aliveMins={aliveMins} activeHat={pet.activeHat} hasHat={pet.hasHat} genetics={pet.genetics} environment={pet.environment} actionState={actionState} onPetClick={handlePetClick} />
                   </div>
 
                   <div className="pet-scene-overlay">

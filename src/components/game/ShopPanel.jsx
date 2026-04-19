@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Coins } from 'lucide-react';
 import { t } from '../../i18n';
+import { HAT_CATALOG, normalizeHatState } from '../../domain/hats';
 
 function PriceBadge({ amount }) {
   return (
@@ -60,15 +61,15 @@ export default function ShopPanel({
   pet,
   onBuyPremiumFood,
   onBuyMedicine,
-  onBuyMagicHat,
+  onHatAction,
   onBuyEnvSunset,
   onBuyEnvNight,
 }) {
   const [activeCategory, setActiveCategory] = useState('care');
+  const hatState = normalizeHatState(pet);
 
   const canBuySteak = pet.coins >= 30;
   const canBuyMedicine = pet.coins >= 50 && pet.isSick;
-  const canBuyHat = pet.coins >= 200 && !pet.hasHat;
   const canBuySunset = pet.coins >= 100 && pet.environment !== 'sunset';
   const canBuyNight = pet.coins >= 300 && pet.environment !== 'night';
 
@@ -104,19 +105,29 @@ export default function ShopPanel({
         tone: pet.isSick ? 'danger' : 'default',
       },
     ],
-    hats: [
-      {
-        icon: '🎩',
-        title: t('magic_hat'),
-        description: t('hat_desc'),
-        status: pet.hasHat ? t('shop_state_owned') : canBuyHat ? t('shop_state_ready') : t('shop_state_need_coins'),
-        statusTone: pet.hasHat ? 'owned' : canBuyHat ? 'ready' : 'muted',
-        disabled: !canBuyHat,
-        onClick: onBuyMagicHat,
-        action: pet.hasHat ? t('shop_state_owned') : <PriceBadge amount={200} />,
-        tone: pet.hasHat ? 'owned' : 'default',
-      },
-    ],
+    hats: HAT_CATALOG.map((hat) => {
+      const isOwned = hatState.ownedHats.includes(hat.id);
+      const isActive = hatState.activeHat === hat.id;
+      const canBuyHat = pet.coins >= hat.price;
+
+      return {
+        icon: hat.icon,
+        title: t(hat.titleKey),
+        description: t(hat.descriptionKey),
+        status: isActive
+          ? t('shop_state_active')
+          : isOwned
+            ? t('shop_state_owned')
+            : canBuyHat
+              ? t('shop_state_ready')
+              : t('shop_state_need_coins'),
+        statusTone: isActive ? 'active' : isOwned ? 'owned' : canBuyHat ? 'ready' : 'muted',
+        disabled: isActive || (!isOwned && !canBuyHat),
+        onClick: (event) => onHatAction(hat.id, hat.price, event),
+        action: isActive ? t('shop_state_active') : isOwned ? t('shop_action_wear') : <PriceBadge amount={hat.price} />,
+        tone: isActive ? 'active' : isOwned ? 'owned' : 'default',
+      };
+    }),
     clothes: [
       {
         icon: '🧥',

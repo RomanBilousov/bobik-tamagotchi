@@ -41,7 +41,7 @@ export default function Auth({ appError }) {
       </button>
 
       <div className="auth-scene">
-        <Scene3D isSick={false} aliveMins={20} hasHat={false} genetics="golden" environment="day" actionState="idle" />
+        <Scene3D isSick={false} aliveMins={20} activeHat={null} hasHat={false} genetics="golden" environment="day" actionState="idle" />
       </div>
 
       <h1>Bobik</h1>
