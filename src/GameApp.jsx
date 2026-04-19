@@ -11,6 +11,7 @@ import {
   createStatsConfig,
   getEvolutionData,
   getStatusMessage,
+  TREASURE_COOLDOWN_MS,
 } from './domain/petLogic';
 import { getHatById, normalizeHatState } from './domain/hats';
 import { syncLocalSettingsFromProfile } from './lib/storage/legacyLocalStorage';
@@ -25,6 +26,13 @@ import {
 } from './services/gameService';
 
 const STATS = createStatsConfig(t);
+
+function formatCooldown(msRemaining) {
+  const totalSeconds = Math.max(0, Math.ceil(msRemaining / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
 
 export default function GameApp({ session, onLogout }) {
   const [pet, setPet] = useState(null);
@@ -237,6 +245,11 @@ export default function GameApp({ session, onLogout }) {
       return;
     }
 
+    const treasureReadyAtMs = pet?.treasureReadyAt ? new Date(pet.treasureReadyAt).getTime() : 0;
+    if (treasureReadyAtMs > Date.now()) {
+      return;
+    }
+
     if (pet.energy < 20 || pet.hunger < 30) {
       showFlyout(event, t('needs_food'), '#ef4444');
       return;
@@ -248,6 +261,7 @@ export default function GameApp({ session, onLogout }) {
     syncAction({
       energy: pet.energy - 20,
       hunger: pet.hunger - 30,
+      treasureReadyAt: new Date(Date.now() + TREASURE_COOLDOWN_MS).toISOString(),
       coins: (pet.coins || 0) + earned,
     });
 
@@ -418,6 +432,11 @@ export default function GameApp({ session, onLogout }) {
   const canPlay = Boolean(pet && pet.energy >= 10);
   const canWork = Boolean(pet && pet.energy >= 20 && pet.hunger >= 30);
   const isActionLocked = actionState !== 'idle';
+  const treasureCooldownMs = pet?.treasureReadyAt
+    ? Math.max(0, new Date(pet.treasureReadyAt).getTime() - Date.now())
+    : 0;
+  const isTreasureCoolingDown = treasureCooldownMs > 0;
+  const treasureButtonLabel = isTreasureCoolingDown ? formatCooldown(treasureCooldownMs) : t('action_treasure');
   const needsCare = Boolean(pet && (pet.hunger < 20 || pet.energy < 20 || pet.happiness < 20));
   const petStateTone = pet?.isSick ? 'danger' : needsCare ? 'warning' : 'stable';
   const sceneStats = [
@@ -570,9 +589,9 @@ export default function GameApp({ session, onLogout }) {
                     <span>{t('action_play_btn')}</span>
                   </button>
 
-                  <button className="action-btn action-btn-toolbar btn-act-work" onClick={actWork} disabled={!canWork || isActionLocked} type="button">
+                  <button className="action-btn action-btn-toolbar btn-act-work" onClick={actWork} disabled={!canWork || isActionLocked || isTreasureCoolingDown} type="button">
                     <span className="action-btn-icon">💎</span>
-                    <span>{t('action_treasure')}</span>
+                    <span>{treasureButtonLabel}</span>
                   </button>
                 </div>
               </div>

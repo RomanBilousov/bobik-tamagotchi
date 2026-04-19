@@ -4,6 +4,7 @@ export const MAX_STAT = 100;
 export const DEFAULT_PROFILE_NAME = 'Игрок';
 export const DECAY_RATE_PER_MINUTE = 2;
 export const DEFAULT_PET_COLOR = '#df7720';
+export const TREASURE_COOLDOWN_MS = 10 * 60 * 1000;
 
 export function createStatsConfig(t) {
   return {
@@ -44,6 +45,7 @@ export function buildRandomPetDraft(random = Math.random) {
     hasHat: false,
     ownedHats: [],
     activeHat: null,
+    treasureReadyAt: null,
     coins: 50,
     genetics: {
       color: colors[Math.floor(random() * colors.length)] || DEFAULT_PET_COLOR,

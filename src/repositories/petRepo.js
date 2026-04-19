@@ -14,6 +14,7 @@ const PET_COLUMNS = [
   'has_hat',
   'owned_hats',
   'active_hat',
+  'treasure_ready_at',
   'coins',
   'environment',
   'color',
@@ -42,6 +43,15 @@ function normalizeCoins(value) {
 function normalizeTimestamp(value, fallback = new Date().toISOString()) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? fallback : date.toISOString();
+}
+
+function normalizeNullableTimestamp(value) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
 function normalizeEnvironment(value) {
@@ -83,6 +93,7 @@ function mapRowToPet(row) {
     happiness: Number(row.happiness),
     isSick: Boolean(row.is_sick),
     ...hatState,
+    treasureReadyAt: row.treasure_ready_at,
     coins: Number(row.coins),
     environment: row.environment,
     genetics: {
@@ -108,6 +119,7 @@ function mapPetToInsertRow(userId, pet) {
     has_hat: hatState.hasHat,
     owned_hats: hatState.ownedHats,
     active_hat: hatState.activeHat,
+    treasure_ready_at: normalizeNullableTimestamp(pet.treasureReadyAt),
     coins: normalizeCoins(pet.coins),
     environment: normalizeEnvironment(pet.environment),
     color: pet.genetics?.color || '#df7720',
@@ -152,6 +164,10 @@ function mapPetToUpdateRow(pet) {
     row.has_hat = hatState.hasHat;
     row.owned_hats = hatState.ownedHats;
     row.active_hat = hatState.activeHat;
+  }
+
+  if ('treasureReadyAt' in pet) {
+    row.treasure_ready_at = normalizeNullableTimestamp(pet.treasureReadyAt);
   }
 
   if ('coins' in pet) {
