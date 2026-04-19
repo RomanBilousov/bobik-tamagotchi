@@ -373,10 +373,10 @@ export default function GameApp({ session, onLogout }) {
         </div>
 
         {pet && !pet.died_at && (
-          <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+          <div className="game-header-actions">
             <button
               onClick={handleEnvironmentCycle}
-              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', padding: '6px 12px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}
+              className="environment-chip"
             >
               {pet.environment === 'day' ? t('day') : (pet.environment === 'sunset' ? t('sunset') : t('night'))}
             </button>
@@ -424,67 +424,73 @@ export default function GameApp({ session, onLogout }) {
           onLogout={onLogout}
         />
       ) : (
-        <>
-          <div className="pet-display" style={{position: 'relative', width: '100%', height: '35vh', minHeight: '260px', marginBottom: '1.5rem'}}>
-            <div className="particles-container">
-              {particles.map((particle) => (
-                <div key={particle.id} className="particle" style={{'--vx': particle.vx, '--vy': particle.vy}}>
-                  {particle.emoji}
+        <div className="game-main-layout">
+          <section className="game-stage-column">
+            <div className="pet-stage-card">
+              <div className="pet-display">
+                <div className="particles-container">
+                  {particles.map((particle) => (
+                    <div key={particle.id} className="particle" style={{'--vx': particle.vx, '--vy': particle.vy}}>
+                      {particle.emoji}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, cursor: 'grab', borderRadius: '24px', overflow: 'hidden' }}>
-              <Scene3D isSick={pet.isSick} aliveMins={aliveMins} hasHat={pet.hasHat} genetics={pet.genetics} environment={pet.environment} actionState={actionState} onPetClick={handlePetClick} />
-            </div>
-
-            <div className="pet-status" style={{ position: 'absolute', bottom: '-2.5rem', width: '100%', textAlign: 'center', zIndex: 10, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-              <div className="pet-name">
-                Bobik <span style={{fontSize: '1rem', fontWeight: 500, color: '#fbbf24'}}>{getEvolutionData(aliveMins, t).name}</span>
+                <div className="pet-display-canvas">
+                  <Scene3D isSick={pet.isSick} aliveMins={aliveMins} hasHat={pet.hasHat} genetics={pet.genetics} environment={pet.environment} actionState={actionState} onPetClick={handlePetClick} />
+                </div>
               </div>
 
-              {(() => {
-                const evolution = getEvolutionData(aliveMins, t);
-                if (!evolution.nextT) {
-                  return null;
-                }
+              <div className="pet-status pet-status-card">
+                <div className="pet-name">
+                  Bobik <span className="pet-evolution-name">{getEvolutionData(aliveMins, t).name}</span>
+                </div>
 
-                const progress = ((aliveMins - evolution.currentT) / (evolution.nextT - evolution.currentT)) * 100;
-                return (
-                  <div style={{width: '200px', height: '4px', background: 'rgba(0,0,0,0.5)', margin: '0.2rem auto', borderRadius: '4px', overflow: 'hidden'}}>
-                    <div style={{width: `${Math.min(100, Math.max(0, progress))}%`, height: '100%', background: '#fbbf24', transition: 'width 1s linear'}}/>
-                  </div>
-                );
-              })()}
+                {(() => {
+                  const evolution = getEvolutionData(aliveMins, t);
+                  if (!evolution.nextT) {
+                    return null;
+                  }
 
-              <div className="pet-status-msg" style={{color: pet.isSick ? '#ef4444' : 'var(--text-primary)', marginTop: '0.2rem'}}>
-                {statusMessage}
-                {pet.isSick && <div style={{fontSize: '0.85rem', marginTop: '0.1rem'}}>{t('disease_warning')}</div>}
+                  const progress = ((aliveMins - evolution.currentT) / (evolution.nextT - evolution.currentT)) * 100;
+                  return (
+                    <div className="pet-evolution-progress">
+                      <div style={{width: `${Math.min(100, Math.max(0, progress))}%`, height: '100%', background: '#fbbf24', transition: 'width 1s linear'}}/>
+                    </div>
+                  );
+                })()}
+
+                <div className="pet-status-msg" style={{color: pet.isSick ? '#ef4444' : 'var(--text-primary)'}}>
+                  {statusMessage}
+                  {pet.isSick && <div style={{fontSize: '0.85rem', marginTop: '0.1rem'}}>{t('disease_warning')}</div>}
+                </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="stats-container" style={{ marginTop: 'auto', marginBottom: '1rem' }}>
-            <StatBar label={STATS.hunger.label} value={pet.hunger} colorClass={STATS.hunger.color} />
-            <StatBar label={STATS.energy.label} value={pet.energy} colorClass={STATS.energy.color} />
-            <StatBar label={STATS.happiness.label} value={pet.happiness} colorClass={STATS.happiness.color} />
-          </div>
+          <aside className="game-side-column">
+            <div className="stats-container game-panel-card">
+              <StatBar label={STATS.hunger.label} value={pet.hunger} colorClass={STATS.hunger.color} />
+              <StatBar label={STATS.energy.label} value={pet.energy} colorClass={STATS.energy.color} />
+              <StatBar label={STATS.happiness.label} value={pet.happiness} colorClass={STATS.happiness.color} />
+            </div>
 
-          <div className="action-buttons">
-            <button className="action-btn btn-act-feed" onClick={actFeed} style={{opacity: pet.energy < 5 ? 0.3 : 1}}>
-              <span style={{fontSize:'1.5rem'}}>🍖</span> {t('action_food')}
-            </button>
-            <button className="action-btn btn-act-play" onClick={actPlay} style={{opacity: pet.energy < 10 ? 0.3 : 1}}>
-              <span style={{fontSize:'1.5rem'}}>🎾</span> {t('action_play_btn')}
-            </button>
-            <button className="action-btn btn-act-sleep" onClick={actSleep}>
-              <span style={{fontSize:'1.5rem'}}>💤</span> {t('action_sleep_btn')}
-            </button>
-            <button className="action-btn btn-act-work" onClick={actWork} style={{opacity: (pet.energy < 20 || pet.hunger < 30) ? 0.3 : 1}}>
-              <span style={{fontSize:'1.5rem'}}>💎</span> {t('action_treasure')}
-            </button>
-          </div>
-        </>
+            <div className="game-panel-card action-buttons">
+              <button className="action-btn btn-act-feed" onClick={actFeed} style={{opacity: pet.energy < 5 ? 0.3 : 1}}>
+                <span style={{fontSize:'1.5rem'}}>🍖</span> {t('action_food')}
+              </button>
+              <button className="action-btn btn-act-play" onClick={actPlay} style={{opacity: pet.energy < 10 ? 0.3 : 1}}>
+                <span style={{fontSize:'1.5rem'}}>🎾</span> {t('action_play_btn')}
+              </button>
+              <button className="action-btn btn-act-sleep" onClick={actSleep}>
+                <span style={{fontSize:'1.5rem'}}>💤</span> {t('action_sleep_btn')}
+              </button>
+              <button className="action-btn btn-act-work" onClick={actWork} style={{opacity: (pet.energy < 20 || pet.hunger < 30) ? 0.3 : 1}}>
+                <span style={{fontSize:'1.5rem'}}>💎</span> {t('action_treasure')}
+              </button>
+            </div>
+          </aside>
+        </div>
       )}
 
       <BottomNav hasActivePet={Boolean(pet && !pet.died_at)} activeTab={activeTab} onTabChange={setActiveTab} isSick={Boolean(pet?.isSick)} />
