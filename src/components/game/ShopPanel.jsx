@@ -37,15 +37,19 @@ function ShopItem({
 }) {
   return (
     <div className={`shop-item shop-item--${tone}`}>
-      <div className="shop-item-icon" aria-hidden="true">{icon}</div>
-      <div className="shop-item-info">
-        <div className="shop-item-header">
-          <div className="shop-item-title">{title}</div>
-          <span className={`status-badge status-badge--${statusTone}`}>{status}</span>
+      <div className="shop-item-main">
+        <div className={`shop-item-icon-wrap shop-item-icon-wrap--${tone}`} aria-hidden="true">
+          <div className="shop-item-icon">{icon}</div>
         </div>
-        <div className="shop-item-desc">{description}</div>
+        <div className="shop-item-info">
+          <div className="shop-item-header">
+            <div className="shop-item-title">{title}</div>
+            <span className={`status-badge status-badge--${statusTone}`}>{status}</span>
+          </div>
+          <div className="shop-item-desc">{description}</div>
+        </div>
       </div>
-      <button className="shop-item-buy" disabled={disabled} onClick={onClick} type="button">
+      <button className={`shop-item-buy ${disabled ? 'shop-item-buy--muted' : ''}`} disabled={disabled} onClick={onClick} type="button">
         {action}
       </button>
     </div>
@@ -69,11 +73,11 @@ export default function ShopPanel({
   const canBuyNight = pet.coins >= 300 && pet.environment !== 'night';
 
   const categories = [
-    { key: 'care', label: t('shop_cat_care'), emoji: '🍖' },
+    { key: 'care', label: t('shop_cat_care'), emoji: '🍲' },
     { key: 'hats', label: t('shop_cat_hats'), emoji: '🎩' },
-    { key: 'clothes', label: t('shop_cat_clothes'), emoji: '🧥' },
-    { key: 'appearance', label: t('shop_cat_appearance'), emoji: '🎨' },
-    { key: 'locations', label: t('shop_cat_locations'), emoji: '🌄' },
+    { key: 'clothes', label: t('shop_cat_clothes'), emoji: '👕' },
+    { key: 'appearance', label: t('shop_cat_appearance'), emoji: '🐶' },
+    { key: 'locations', label: t('shop_cat_locations'), emoji: '🌳' },
   ];
 
   const itemsByCategory = {
