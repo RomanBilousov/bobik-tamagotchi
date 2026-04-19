@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Coins } from 'lucide-react';
 import { playSound, toggleMute, getMuteState, setMuteState } from './SoundHelper';
 import Scene3D from './Scene3D';
@@ -38,6 +38,7 @@ export default function GameApp({ session, onLogout }) {
   const [activeTab, setActiveTab] = useState('pet');
   const [isMuted, setIsMuted] = useState(getMuteState());
   const [profileName, setProfileName] = useState(DEFAULT_PROFILE_NAME);
+  const actionLockRef = useRef(false);
 
   const reportError = useCallback((error, fallback = t('sync_error')) => {
     setErrorMessage(error?.message || fallback);
@@ -171,16 +172,26 @@ export default function GameApp({ session, onLogout }) {
   };
 
   const triggerActionAnim = (type, duration = 3000) => {
+    actionLockRef.current = true;
     setActionState(type);
-    setTimeout(() => setActionState((previousState) => (previousState === type ? 'idle' : previousState)), duration);
+    setTimeout(() => {
+      actionLockRef.current = false;
+      setActionState((previousState) => (previousState === type ? 'idle' : previousState));
+    }, duration);
   };
 
   const actFeed = (event) => {
+    if (actionLockRef.current) {
+      return;
+    }
+
     if (pet.energy < 5) {
       showFlyout(event, t('needs_sleep'), '#ef4444');
       return;
     }
 
+    actionLockRef.current = true;
+    event.currentTarget.disabled = true;
     syncAction({ hunger: pet.hunger + 20, energy: pet.energy - 5 });
     playSound('feed');
     triggerParticle('🍖');
@@ -189,11 +200,17 @@ export default function GameApp({ session, onLogout }) {
   };
 
   const actPlay = (event) => {
+    if (actionLockRef.current) {
+      return;
+    }
+
     if (pet.energy < 10) {
       showFlyout(event, t('too_tired'), '#ef4444');
       return;
     }
 
+    actionLockRef.current = true;
+    event.currentTarget.disabled = true;
     syncAction({ happiness: pet.happiness + 20, energy: pet.energy - 10 });
     playSound('play');
     triggerParticle('🎾');
@@ -202,6 +219,12 @@ export default function GameApp({ session, onLogout }) {
   };
 
   const actSleep = (event) => {
+    if (actionLockRef.current) {
+      return;
+    }
+
+    actionLockRef.current = true;
+    event.currentTarget.disabled = true;
     syncAction({ energy: pet.energy + 30, happiness: pet.happiness - 5, hunger: pet.hunger - 5 });
     playSound('sleep');
     triggerParticle('💤');
@@ -210,11 +233,17 @@ export default function GameApp({ session, onLogout }) {
   };
 
   const actWork = (event) => {
+    if (actionLockRef.current) {
+      return;
+    }
+
     if (pet.energy < 20 || pet.hunger < 30) {
       showFlyout(event, t('needs_food'), '#ef4444');
       return;
     }
 
+    actionLockRef.current = true;
+    event.currentTarget.disabled = true;
     const earned = 15 + Math.floor(Math.random() * 26);
     syncAction({
       energy: pet.energy - 20,
@@ -229,10 +258,11 @@ export default function GameApp({ session, onLogout }) {
   };
 
   const handlePetClick = () => {
-    if (actionState !== 'idle') {
+    if (actionLockRef.current) {
       return;
     }
 
+    actionLockRef.current = true;
     triggerActionAnim('bark', 1500);
     playSound('bark');
     syncAction({ happiness: Math.min(100, (pet?.happiness || 0) + 1) });
@@ -387,6 +417,7 @@ export default function GameApp({ session, onLogout }) {
   const canFeed = Boolean(pet && pet.energy >= 5);
   const canPlay = Boolean(pet && pet.energy >= 10);
   const canWork = Boolean(pet && pet.energy >= 20 && pet.hunger >= 30);
+  const isActionLocked = actionState !== 'idle';
   const needsCare = Boolean(pet && (pet.hunger < 20 || pet.energy < 20 || pet.happiness < 20));
   const petStateTone = pet?.isSick ? 'danger' : needsCare ? 'warning' : 'stable';
   const sceneStats = [
@@ -524,22 +555,22 @@ export default function GameApp({ session, onLogout }) {
                   </div>
                 </div>
                 <div className="pet-action-dock">
-                  <button className="action-btn action-btn-toolbar btn-act-feed" onClick={actFeed} disabled={!canFeed} type="button">
+                  <button className="action-btn action-btn-toolbar btn-act-feed" onClick={actFeed} disabled={!canFeed || isActionLocked} type="button">
                     <span className="action-btn-icon">🍖</span>
                     <span>{t('action_food')}</span>
                   </button>
 
-                  <button className="action-btn action-btn-toolbar btn-act-sleep" onClick={actSleep} type="button">
+                  <button className="action-btn action-btn-toolbar btn-act-sleep" disabled={isActionLocked} onClick={actSleep} type="button">
                     <span className="action-btn-icon">💤</span>
                     <span>{t('action_sleep_btn')}</span>
                   </button>
 
-                  <button className="action-btn action-btn-toolbar btn-act-play" onClick={actPlay} disabled={!canPlay} type="button">
+                  <button className="action-btn action-btn-toolbar btn-act-play" onClick={actPlay} disabled={!canPlay || isActionLocked} type="button">
                     <span className="action-btn-icon">🎾</span>
                     <span>{t('action_play_btn')}</span>
                   </button>
 
-                  <button className="action-btn action-btn-toolbar btn-act-work" onClick={actWork} disabled={!canWork} type="button">
+                  <button className="action-btn action-btn-toolbar btn-act-work" onClick={actWork} disabled={!canWork || isActionLocked} type="button">
                     <span className="action-btn-icon">💎</span>
                     <span>{t('action_treasure')}</span>
                   </button>
