@@ -26,6 +26,7 @@ import {
   persistPet,
   saveProfileSettings,
 } from './services/gameService';
+import { bindTelegramBackButton, triggerTelegramHaptic } from './lib/telegram/webApp';
 
 const STATS = createStatsConfig(t);
 const FRANX_PROFILE_NAME = 'franx';
@@ -66,8 +67,20 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     setActiveTab(initialTab);
   }, [initialTab]);
 
+  useEffect(() => {
+    return bindTelegramBackButton(activeTab !== 'pet', () => {
+      triggerTelegramHaptic('light');
+      setActiveTab('pet');
+    });
+  }, [activeTab]);
+
   const reportError = useCallback((error, fallback = t('sync_error')) => {
     setErrorMessage(error?.message || fallback);
+  }, []);
+
+  const handleTabChange = useCallback((nextTab) => {
+    triggerTelegramHaptic('selection');
+    setActiveTab(nextTab);
   }, []);
 
   const applyFranxCoinOverride = useCallback((nextPet, nickname = savedProfileName) => {
@@ -230,9 +243,11 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
         void persistPetState(nextPet).catch((error) => reportError(error));
       }
 
+      triggerTelegramHaptic('success');
       setActiveTab('pet');
       playSound('play');
     } catch (error) {
+      triggerTelegramHaptic('error');
       reportError(error);
     } finally {
       setLoading(false);
@@ -264,10 +279,12 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     }
 
     if (pet.energy < 5) {
+      triggerTelegramHaptic('warning');
       showFlyout(event, t('needs_sleep'), '#ef4444');
       return;
     }
 
+    triggerTelegramHaptic('light');
     actionLockRef.current = true;
     event.currentTarget.disabled = true;
     syncAction({ hunger: pet.hunger + 20, energy: pet.energy - 5 });
@@ -283,10 +300,12 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     }
 
     if (pet.energy < 10) {
+      triggerTelegramHaptic('warning');
       showFlyout(event, t('too_tired'), '#ef4444');
       return;
     }
 
+    triggerTelegramHaptic('light');
     actionLockRef.current = true;
     event.currentTarget.disabled = true;
     syncAction({ happiness: pet.happiness + 20, energy: pet.energy - 10 });
@@ -301,6 +320,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       return;
     }
 
+    triggerTelegramHaptic('light');
     actionLockRef.current = true;
     event.currentTarget.disabled = true;
     syncAction({ energy: pet.energy + 30, happiness: pet.happiness - 5, hunger: pet.hunger - 5 });
@@ -317,14 +337,17 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
 
     const treasureReadyAtMs = pet?.treasureReadyAt ? new Date(pet.treasureReadyAt).getTime() : 0;
     if (treasureReadyAtMs > Date.now()) {
+      triggerTelegramHaptic('warning');
       return;
     }
 
     if (pet.energy < 20 || pet.hunger < 30) {
+      triggerTelegramHaptic('warning');
       showFlyout(event, t('needs_food'), '#ef4444');
       return;
     }
 
+    triggerTelegramHaptic('medium');
     actionLockRef.current = true;
     event.currentTarget.disabled = true;
     const earned = 15 + Math.floor(Math.random() * 26);
@@ -346,6 +369,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       return;
     }
 
+    triggerTelegramHaptic('soft');
     actionLockRef.current = true;
     triggerActionAnim('bark', 1500);
     playSound('bark');
@@ -359,6 +383,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
 
   const buyPremiumFood = (event) => {
     if (pet.coins >= 30) {
+      triggerTelegramHaptic('light');
       syncAction({ coins: pet.coins - 30, hunger: pet.hunger + 50, happiness: pet.happiness + 10 });
       playSound('feed');
       triggerParticle('🥩');
@@ -368,6 +393,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
 
   const buyMedicine = (event) => {
     if (pet.coins >= 50 && pet.isSick) {
+      triggerTelegramHaptic('success');
       syncAction({ coins: pet.coins - 50, isSick: false });
       playSound('heal');
       triggerParticle('💊');
@@ -392,6 +418,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
         ownedHats: hatState.ownedHats,
         activeHat: hatId,
       });
+      triggerTelegramHaptic('selection');
       playSound('play');
       triggerParticle(selectedHat.icon);
       showFlyout(event, t('shop_hat_equipped'), '#10b981');
@@ -399,9 +426,11 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     }
 
     if (pet.coins < price) {
+      triggerTelegramHaptic('warning');
       return;
     }
 
+    triggerTelegramHaptic('light');
     syncAction({
       coins: pet.coins - price,
       ownedHats: [...hatState.ownedHats, hatId],
@@ -414,6 +443,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
 
   const buyEnvSunset = (event) => {
     if (pet.coins >= 100 && pet.environment !== 'sunset') {
+      triggerTelegramHaptic('light');
       syncAction({ coins: pet.coins - 100, environment: 'sunset' });
       playSound('play');
       triggerParticle('🌅');
@@ -423,6 +453,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
 
   const buyEnvNight = (event) => {
     if (pet.coins >= 300 && pet.environment !== 'night') {
+      triggerTelegramHaptic('light');
       syncAction({ coins: pet.coins - 300, environment: 'night' });
       playSound('play');
       triggerParticle('🌃');
@@ -454,8 +485,10 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       });
 
       playSound('play');
+      triggerTelegramHaptic('success');
       showFlyout(event, t('saved_ok'), '#10b981');
     } catch (error) {
+      triggerTelegramHaptic('error');
       reportError(error, t('profile_save_error'));
       showFlyout(event, t('profile_save_error'), '#ef4444');
     }
@@ -463,18 +496,21 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
 
   const handleSaveAccountAccess = async (event) => {
     if (!accountLoginName.trim()) {
+      triggerTelegramHaptic('warning');
       reportError(new Error(t('account_access_login_required')), t('account_access_error'));
       showFlyout(event, t('account_access_login_required'), '#ef4444');
       return;
     }
 
     if (accountNewPassword.length < 6) {
+      triggerTelegramHaptic('warning');
       reportError(new Error(t('account_access_password_short')), t('account_access_error'));
       showFlyout(event, t('account_access_password_short'), '#ef4444');
       return;
     }
 
     if (accountNewPassword !== accountConfirmPassword) {
+      triggerTelegramHaptic('warning');
       reportError(new Error(t('account_access_password_mismatch')), t('account_access_error'));
       showFlyout(event, t('account_access_password_mismatch'), '#ef4444');
       return;
@@ -492,9 +528,11 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       setAccountAccess(nextAccess);
       setAccountLoginName(nextAccess.loginName);
       clearAccountPasswordInputs();
+      triggerTelegramHaptic('success');
       playSound('play');
       showFlyout(event, isPasswordChange ? t('account_password_changed') : t('account_password_set'), '#10b981');
     } catch (error) {
+      triggerTelegramHaptic('error');
       reportError(error, t('account_access_error'));
       showFlyout(event, error?.message || t('account_access_error'), '#ef4444');
     }
@@ -533,6 +571,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     const envs = ['day', 'sunset', 'night'];
     const nextEnv = envs[(envs.indexOf(pet.environment) + 1) % envs.length] || 'day';
     const updatedPet = applyFranxCoinOverride(buildPetState(pet, { environment: nextEnv }));
+    triggerTelegramHaptic('selection');
     setPet(updatedPet);
     void persistPetState(updatedPet).catch((error) => reportError(error));
   };
@@ -595,7 +634,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
               {pet.environment === 'day' ? t('day') : (pet.environment === 'sunset' ? t('sunset') : t('night'))}
             </button>
 
-            <button className="coins-display coins-display-button" onClick={() => setActiveTab('shop')} type="button">
+            <button className="coins-display coins-display-button" onClick={() => handleTabChange('shop')} type="button">
               <Coins size={16} />
               <span className="coins-display-value">{pet.coins || 0}</span>
             </button>
@@ -734,7 +773,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
         )}
       </div>
 
-      <BottomNav hasActivePet={Boolean(pet && !pet.died_at)} activeTab={activeTab} onTabChange={setActiveTab} isSick={Boolean(pet?.isSick)} />
+      <BottomNav hasActivePet={Boolean(pet && !pet.died_at)} activeTab={activeTab} onTabChange={handleTabChange} isSick={Boolean(pet?.isSick)} />
     </div>
   );
 }

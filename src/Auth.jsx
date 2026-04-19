@@ -8,6 +8,7 @@ import {
   isSupabaseConfigured,
   supabase,
 } from './lib/supabase/client';
+import { triggerTelegramHaptic } from './lib/telegram/webApp';
 
 export default function Auth({ appError, session, onLogout }) {
   const navigate = useNavigate();
@@ -35,11 +36,13 @@ export default function Auth({ appError, session, onLogout }) {
 
     const { error } = await supabase.auth.signInAnonymously();
     if (error) {
+      triggerTelegramHaptic('error');
       setErrorMessage(error.message || t('auth_sign_in_failed'));
       setGuestLoading(false);
       return;
     }
 
+    triggerTelegramHaptic('success');
     setGuestLoading(false);
     navigate('/');
   };
@@ -77,9 +80,11 @@ export default function Auth({ appError, session, onLogout }) {
         password,
       });
 
+      triggerTelegramHaptic('success');
       setPassword('');
       navigate('/');
     } catch (error) {
+      triggerTelegramHaptic('error');
       setErrorMessage(error?.message || t('auth_restore_failed'));
 
       if (createdTempSession) {
@@ -92,6 +97,7 @@ export default function Auth({ appError, session, onLogout }) {
 
   const handleSwitchAccount = async () => {
     setErrorMessage('');
+    triggerTelegramHaptic('light');
     await onLogout?.();
   };
 

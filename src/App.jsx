@@ -22,6 +22,11 @@ import {
   readLegacyProfileSettings,
   syncLocalSettingsFromProfile,
 } from './lib/storage/legacyLocalStorage';
+import {
+  getTelegramInitialTab,
+  getTelegramProfileDefaults,
+  initTelegramMiniApp,
+} from './lib/telegram/webApp';
 
 function wait(ms) {
   return new Promise((resolve) => {
@@ -38,6 +43,7 @@ function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [appError, setAppError] = useState('');
+  const [telegramInitialTab] = useState(() => getTelegramInitialTab());
 
   const bootstrapUser = useCallback(async (nextSession) => {
     if (!nextSession) {
@@ -49,7 +55,11 @@ function App() {
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         const legacyProfile = readLegacyProfileSettings();
-        const profile = await ensureProfile(userId, legacyProfile);
+        const telegramProfile = getTelegramProfileDefaults();
+        const profile = await ensureProfile(userId, {
+          ...telegramProfile,
+          ...legacyProfile,
+        });
         syncLocalSettingsFromProfile(profile);
 
         if (!hasLegacyMigrationRun(userId)) {
@@ -92,6 +102,10 @@ function App() {
         await wait(150 * (attempt + 1));
       }
     }
+  }, []);
+
+  useEffect(() => {
+    return initTelegramMiniApp();
   }, []);
 
   useEffect(() => {
@@ -202,7 +216,7 @@ function App() {
       <Routes>
         <Route 
           path="/" 
-          element={session ? <GameApp session={session} onLogout={handleLogout} /> : <Navigate to="/auth" replace />} 
+          element={session ? <GameApp session={session} onLogout={handleLogout} initialTab={telegramInitialTab} /> : <Navigate to="/auth" replace />} 
         />
         <Route 
           path="/auth" 

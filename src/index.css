@@ -19,6 +19,12 @@
   
   --border-radius: 20px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --tg-viewport-height: 100vh;
+  --tg-viewport-stable-height: 100vh;
+  --tg-safe-area-top: env(safe-area-inset-top);
+  --tg-safe-area-right: env(safe-area-inset-right);
+  --tg-safe-area-bottom: env(safe-area-inset-bottom);
+  --tg-safe-area-left: env(safe-area-inset-left);
 }
 
 * {
@@ -41,10 +47,25 @@ body {
   background-attachment: fixed;
 }
 
+body.telegram-mini-app {
+  --text-primary: var(--tg-theme-text-color, #f8fafc);
+  --text-secondary: var(--tg-theme-hint-color, #94a3b8);
+  --primary-color: var(--tg-theme-button-color, #3b82f6);
+  --primary-hover: var(--tg-theme-link-color, #2563eb);
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 35%),
+    linear-gradient(
+      180deg,
+      var(--tg-theme-secondary-bg-color, var(--bg-gradient-start)),
+      var(--tg-theme-bg-color, #020617) 80%
+    );
+  color: var(--tg-theme-text-color, var(--text-primary));
+}
+
 /* Mobile-first app container */
 #root {
   width: 100%;
-  min-height: 100vh;
+  min-height: var(--tg-viewport-stable-height);
 }
 
 .auth-container {
@@ -52,9 +73,12 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: var(--tg-viewport-stable-height);
   padding: 2rem;
-  padding-top: max(2rem, env(safe-area-inset-top));
+  padding-top: max(2rem, var(--tg-safe-area-top));
+  padding-right: max(2rem, var(--tg-safe-area-right));
+  padding-bottom: max(2rem, var(--tg-safe-area-bottom));
+  padding-left: max(2rem, var(--tg-safe-area-left));
   text-align: center;
   position: relative;
 }
@@ -265,10 +289,12 @@ body {
   flex-direction: column;
   width: 100%;
   max-width: 100%;
-  min-height: 100vh;
+  min-height: var(--tg-viewport-stable-height);
   padding: 1rem;
-  padding-top: max(1rem, env(safe-area-inset-top));
-  padding-bottom: 6.5rem; /* Значительный отступ снизу для навигационного бара на мобильных */
+  padding-top: max(1rem, var(--tg-safe-area-top));
+  padding-right: max(1rem, var(--tg-safe-area-right));
+  padding-bottom: calc(6.5rem + max(0px, var(--tg-safe-area-bottom)));
+  padding-left: max(1rem, var(--tg-safe-area-left));
   margin: 0 auto;
   position: relative;
   overflow-x: hidden;
@@ -1023,7 +1049,31 @@ body {
   background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(10px);
   z-index: 100;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-bottom: max(1rem, var(--tg-safe-area-bottom));
+}
+
+body.telegram-mini-app .game-container {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.telegram-mini-app .game-container::before {
+  display: none !important;
+}
+
+body.telegram-mini-app .nav-bar {
+  position: fixed !important;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin-top: 0 !important;
+  border-radius: 24px 24px 0 0;
+  background: rgba(15, 23, 42, 0.9);
 }
 
 .nav-item {
