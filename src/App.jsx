@@ -23,6 +23,17 @@ import {
   syncLocalSettingsFromProfile,
 } from './lib/storage/legacyLocalStorage';
 
+function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function isAuthBootstrapRace(error) {
+  const message = error?.message || '';
+  return message.includes('row-level security policy') || message.includes('Authentication required');
+}
+
 function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,41 +46,52 @@ function App() {
     }
 
     const userId = nextSession.user.id;
-    const legacyProfile = readLegacyProfileSettings();
-    const profile = await ensureProfile(userId, legacyProfile);
-    syncLocalSettingsFromProfile(profile);
-
-    if (!hasLegacyMigrationRun(userId)) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        const petCount = await getPetCount(userId);
+        const legacyProfile = readLegacyProfileSettings();
+        const profile = await ensureProfile(userId, legacyProfile);
+        syncLocalSettingsFromProfile(profile);
 
-        if (petCount === 0) {
-          const legacyPet = readLegacyPet();
-          const legacyLeaderboard = readLegacyLeaderboard();
-          const isLegacyPetAlreadyInLeaderboard =
-            legacyPet?.died_at &&
-            legacyLeaderboard.some(
-              (entry) =>
-                entry?.born_at === legacyPet.born_at &&
-                entry?.died_at === legacyPet.died_at,
-            );
+        if (!hasLegacyMigrationRun(userId)) {
+          try {
+            const petCount = await getPetCount(userId);
 
-          if (legacyPet && !isLegacyPetAlreadyInLeaderboard) {
-            await importLegacyPet(userId, legacyPet);
-          }
+            if (petCount === 0) {
+              const legacyPet = readLegacyPet();
+              const legacyLeaderboard = readLegacyLeaderboard();
+              const isLegacyPetAlreadyInLeaderboard =
+                legacyPet?.died_at &&
+                legacyLeaderboard.some(
+                  (entry) =>
+                    entry?.born_at === legacyPet.born_at &&
+                    entry?.died_at === legacyPet.died_at,
+                );
 
-          if (legacyLeaderboard.length > 0) {
-            await importLegacyLeaderboard(userId, legacyLeaderboard);
+              if (legacyPet && !isLegacyPetAlreadyInLeaderboard) {
+                await importLegacyPet(userId, legacyPet);
+              }
+
+              if (legacyLeaderboard.length > 0) {
+                await importLegacyLeaderboard(userId, legacyLeaderboard);
+              }
+            }
+          } catch (error) {
+            console.error('Skipping legacy data migration', error);
+          } finally {
+            markLegacyMigrationRun(userId);
           }
         }
+
+        clearLegacySensitiveData();
+        return;
       } catch (error) {
-        console.error('Skipping legacy data migration', error);
-      } finally {
-        markLegacyMigrationRun(userId);
+        if (!isAuthBootstrapRace(error) || attempt === 2) {
+          throw error;
+        }
+
+        await wait(150 * (attempt + 1));
       }
     }
-
-    clearLegacySensitiveData();
   }, []);
 
   useEffect(() => {
