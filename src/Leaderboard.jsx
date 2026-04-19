@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Medal, Trophy } from 'lucide-react';
 import { t } from './i18n';
+import { buildFunNickname } from './lib/profile/funNickname';
 import { getLeaderboard } from './repositories/leaderboardRepo';
 
 const TOP_RANK_CLASSES = {
@@ -95,7 +96,7 @@ export default function Leaderboard() {
 
                 <div className="leader-info">
                   <div className="leader-name">
-                    {leader.nickname || `${t('user_lb')} ${leader.user_id?.substring(0, 6)}...`}
+                    {leader.nickname || buildFunNickname(leader.user_id || leader.id)}
                   </div>
                   <div className="leader-time">{t('lived_lb')} {formatLived(leader.timeLivedMs)}</div>
                 </div>

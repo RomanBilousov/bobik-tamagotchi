@@ -1,16 +1,11 @@
 import { requireAuthenticatedUserId, requireSupabase } from '../lib/supabase/client';
+import { resolveProfileNickname } from '../lib/profile/funNickname';
 
 const PROFILE_COLUMNS = 'id, nickname, lang, is_muted, created_at, updated_at';
 const SUPPORTED_LANGS = new Set(['en', 'ua', 'ru']);
 
-function normalizeNickname(value) {
-  const fallback = 'Игрок';
-  if (typeof value !== 'string') {
-    return fallback;
-  }
-
-  const trimmed = value.trim();
-  return trimmed ? trimmed.slice(0, 40) : fallback;
+function normalizeNickname(value, userId) {
+  return resolveProfileNickname(value, userId);
 }
 
 function normalizeLang(value) {
@@ -32,11 +27,11 @@ function mapRowToProfile(row) {
   };
 }
 
-function mapProfileInputToRow(input = {}) {
+function mapProfileInputToRow(input = {}, userId) {
   const row = {};
 
   if ('nickname' in input) {
-    row.nickname = normalizeNickname(input.nickname);
+    row.nickname = normalizeNickname(input.nickname, userId);
   }
 
   if ('lang' in input) {
@@ -76,7 +71,7 @@ export async function ensureProfile(userId, defaults = {}) {
   const supabase = requireSupabase();
   const payload = {
     id: resolvedUserId,
-    nickname: normalizeNickname(defaults.nickname),
+    nickname: normalizeNickname(defaults.nickname, resolvedUserId),
     lang: normalizeLang(defaults.lang),
     is_muted: Boolean(defaults.isMuted),
   };
@@ -97,7 +92,7 @@ export async function ensureProfile(userId, defaults = {}) {
 export async function updateProfile(userId, updates) {
   const supabase = requireSupabase();
   const resolvedUserId = await requireAuthenticatedUserId(userId);
-  const payload = mapProfileInputToRow(updates);
+  const payload = mapProfileInputToRow(updates, resolvedUserId);
 
   const { data, error } = await supabase
     .from('profiles')

@@ -1,7 +1,8 @@
 import { normalizeHatState } from './hats';
+import { buildFunNickname } from '../lib/profile/funNickname';
 
 export const MAX_STAT = 100;
-export const DEFAULT_PROFILE_NAME = 'Игрок';
+export const DEFAULT_PROFILE_NAME = buildFunNickname('guest');
 export const DECAY_RATE_PER_MINUTE = 2;
 export const DEFAULT_PET_COLOR = '#df7720';
 export const TREASURE_COOLDOWN_MS = 10 * 60 * 1000;

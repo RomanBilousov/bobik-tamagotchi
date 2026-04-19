@@ -103,12 +103,7 @@ export function getTelegramProfileDefaults() {
     return {};
   }
 
-  const nickname = [user.first_name, user.last_name].filter(Boolean).join(' ').trim().slice(0, 40);
   const defaults = {};
-
-  if (nickname) {
-    defaults.nickname = nickname;
-  }
 
   if (user.language_code) {
     defaults.lang = mapLanguageCode(user.language_code);

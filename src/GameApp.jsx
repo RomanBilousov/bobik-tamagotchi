@@ -5,7 +5,6 @@ import Scene3D from './Scene3D';
 import Leaderboard from './Leaderboard';
 import { t, cycleLang, getLang, getNextLang } from './i18n';
 import {
-  DEFAULT_PROFILE_NAME,
   applyRuntimeDecayTick,
   buildPetState,
   calculateTimeAlive,
@@ -16,6 +15,7 @@ import {
 } from './domain/petLogic';
 import { getHatById, normalizeHatState } from './domain/hats';
 import { syncLocalSettingsFromProfile } from './lib/storage/legacyLocalStorage';
+import { buildFunNickname } from './lib/profile/funNickname';
 import BottomNav from './components/game/BottomNav';
 import SettingsPanel from './components/game/SettingsPanel';
 import ShopPanel from './components/game/ShopPanel';
@@ -45,6 +45,7 @@ function isFranxProfile(name) {
 }
 
 export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
+  const fallbackProfileName = buildFunNickname(session.user.id);
   const [pet, setPet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -55,8 +56,8 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
   const [playedWarning, setPlayedWarning] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [isMuted, setIsMuted] = useState(getMuteState());
-  const [profileName, setProfileName] = useState(DEFAULT_PROFILE_NAME);
-  const [savedProfileName, setSavedProfileName] = useState(DEFAULT_PROFILE_NAME);
+  const [profileName, setProfileName] = useState(fallbackProfileName);
+  const [savedProfileName, setSavedProfileName] = useState(fallbackProfileName);
   const [accountAccess, setAccountAccess] = useState({ hasPassword: false, loginName: '' });
   const [accountLoginName, setAccountLoginName] = useState('');
   const [accountCurrentPassword, setAccountCurrentPassword] = useState('');
@@ -117,7 +118,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       setLoading(true);
       setErrorMessage('');
       const { pet: loadedPet, profile } = await loadGameData(session.user.id, STATS);
-      const nextProfileName = profile?.nickname || DEFAULT_PROFILE_NAME;
+      const nextProfileName = profile?.nickname || fallbackProfileName;
 
       if (profile) {
         setProfileName(nextProfileName);
@@ -129,8 +130,8 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
           setIsMuted(profile.isMuted);
         }
       } else {
-        setProfileName(DEFAULT_PROFILE_NAME);
-        setSavedProfileName(DEFAULT_PROFILE_NAME);
+        setProfileName(fallbackProfileName);
+        setSavedProfileName(fallbackProfileName);
       }
 
       const nextPet = applyFranxCoinOverride(loadedPet ?? null, nextProfileName);
@@ -157,7 +158,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       reportError(error);
       setLoading(false);
     }
-  }, [applyFranxCoinOverride, clearAccountPasswordInputs, persistPetState, reportError, session.user.id]);
+  }, [applyFranxCoinOverride, clearAccountPasswordInputs, fallbackProfileName, persistPetState, reportError, session.user.id]);
 
   useEffect(() => {
     void fetchPet();

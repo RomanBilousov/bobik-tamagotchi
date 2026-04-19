@@ -63,7 +63,7 @@ function getMigrationKey(userId) {
 
 export function readLegacyProfileSettings() {
   return {
-    nickname: readString(LEGACY_KEYS.nickname) || 'Игрок',
+    nickname: readString(LEGACY_KEYS.nickname) || null,
     lang: readString(LEGACY_KEYS.lang) || 'en',
     isMuted: readString(LEGACY_KEYS.muted) === 'true',
   };
