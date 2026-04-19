@@ -476,7 +476,12 @@ export default function GameApp({ session, onLogout }) {
               <div className="game-panel-card care-panel">
                 <div className="care-action-row">
                   <div className="care-stat">
-                    <StatBar label={STATS.hunger.label} value={pet.hunger} colorClass={STATS.hunger.color} />
+                    <StatBar
+                      label={STATS.hunger.label}
+                      value={pet.hunger}
+                      colorClass={STATS.hunger.color}
+                      description={t('hunger_hint')}
+                    />
                   </div>
                   <button className="action-btn action-btn-inline btn-act-feed" onClick={actFeed} disabled={!canFeed} type="button">
                     <span className="action-btn-icon">🍖</span>
@@ -486,7 +491,12 @@ export default function GameApp({ session, onLogout }) {
 
                 <div className="care-action-row">
                   <div className="care-stat">
-                    <StatBar label={STATS.energy.label} value={pet.energy} colorClass={STATS.energy.color} />
+                    <StatBar
+                      label={STATS.energy.label}
+                      value={pet.energy}
+                      colorClass={STATS.energy.color}
+                      description={t('energy_hint')}
+                    />
                   </div>
                   <button className="action-btn action-btn-inline btn-act-sleep" onClick={actSleep} type="button">
                     <span className="action-btn-icon">💤</span>
@@ -496,7 +506,12 @@ export default function GameApp({ session, onLogout }) {
 
                 <div className="care-action-row">
                   <div className="care-stat">
-                    <StatBar label={STATS.happiness.label} value={pet.happiness} colorClass={STATS.happiness.color} />
+                    <StatBar
+                      label={STATS.happiness.label}
+                      value={pet.happiness}
+                      colorClass={STATS.happiness.color}
+                      description={t('happiness_hint')}
+                    />
                   </div>
                   <button className="action-btn action-btn-inline btn-act-play" onClick={actPlay} disabled={!canPlay} type="button">
                     <span className="action-btn-icon">🎾</span>
