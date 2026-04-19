@@ -11,14 +11,15 @@ function PriceBadge({ amount }) {
   );
 }
 
-function ShopCategoryButton({ active, label, onClick }) {
+function ShopCategoryButton({ active, label, emoji, onClick }) {
   return (
     <button
       className={`shop-category-tab ${active ? 'shop-category-tab--active' : ''}`}
       onClick={onClick}
       type="button"
     >
-      {label}
+      <span className="shop-category-tab-emoji" aria-hidden="true">{emoji}</span>
+      <span className="shop-category-tab-label">{label}</span>
     </button>
   );
 }
@@ -68,11 +69,11 @@ export default function ShopPanel({
   const canBuyNight = pet.coins >= 300 && pet.environment !== 'night';
 
   const categories = [
-    { key: 'care', label: t('shop_cat_care'), title: t('shop_cat_care'), description: t('shop_cat_care_desc') },
-    { key: 'hats', label: t('shop_cat_hats'), title: t('shop_cat_hats'), description: t('shop_cat_hats_desc') },
-    { key: 'clothes', label: t('shop_cat_clothes'), title: t('shop_cat_clothes'), description: t('shop_cat_clothes_desc') },
-    { key: 'appearance', label: t('shop_cat_appearance'), title: t('shop_cat_appearance'), description: t('shop_cat_appearance_desc') },
-    { key: 'locations', label: t('shop_cat_locations'), title: t('shop_cat_locations'), description: t('shop_cat_locations_desc') },
+    { key: 'care', label: t('shop_cat_care'), emoji: '🍖' },
+    { key: 'hats', label: t('shop_cat_hats'), emoji: '🎩' },
+    { key: 'clothes', label: t('shop_cat_clothes'), emoji: '🧥' },
+    { key: 'appearance', label: t('shop_cat_appearance'), emoji: '🎨' },
+    { key: 'locations', label: t('shop_cat_locations'), emoji: '🌄' },
   ];
 
   const itemsByCategory = {
@@ -187,29 +188,19 @@ export default function ShopPanel({
 
   return (
     <div className="shop-grid shop-screen screen-surface">
-      <div className="screen-header">
-        <span className="screen-kicker">{t('nav_shop')}</span>
-        <h2 className="screen-title">{t('shop_title')}</h2>
-        <p className="screen-description">{t('shop_desc')}</p>
-      </div>
-
       <div className="shop-category-bar">
         {categories.map((category) => (
           <ShopCategoryButton
             key={category.key}
             active={activeCategory === category.key}
             label={category.label}
+            emoji={category.emoji}
             onClick={() => setActiveCategory(category.key)}
           />
         ))}
       </div>
 
       <section className="shop-catalog-shell game-panel-card">
-        <div className="shop-catalog-header">
-          <div className="shop-catalog-title">{activeCategoryMeta.title}</div>
-          <div className="shop-catalog-description">{activeCategoryMeta.description}</div>
-        </div>
-
         <div className="shop-catalog-grid">
           {activeItems.map((item) => (
             <ShopItem

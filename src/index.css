@@ -1323,22 +1323,37 @@ body {
 }
 
 .shop-category-bar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(88px, 96px);
   gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+  scrollbar-width: none;
+}
+
+.shop-category-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .shop-category-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  aspect-ratio: 1 / 1;
   border: 1px solid rgba(148, 163, 184, 0.16);
   background: rgba(15, 23, 42, 0.42);
   color: var(--text-secondary);
   border-radius: 14px;
-  padding: 0.68rem 0.9rem;
-  font-size: 0.84rem;
+  padding: 0.6rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.1;
   cursor: pointer;
   transition: var(--transition);
+  text-align: center;
 }
 
 .shop-category-tab:hover {
@@ -1358,34 +1373,24 @@ body {
     0 10px 22px rgba(2, 6, 23, 0.16);
 }
 
+.shop-category-tab-emoji {
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.shop-category-tab-label {
+  display: block;
+}
+
 .shop-catalog-shell {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
-  min-height: 360px;
+  gap: 0.85rem;
+  padding: 0.95rem;
+  min-height: 0;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(15, 23, 42, 0.08)),
     radial-gradient(circle at top left, rgba(96, 165, 250, 0.07), transparent 38%);
-}
-
-.shop-catalog-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.shop-catalog-title {
-  font-size: 1.08rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.shop-catalog-description {
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: var(--text-secondary);
-  max-width: 54ch;
 }
 
 .shop-catalog-grid {
@@ -2022,15 +2027,7 @@ body {
 
   .shop-category-bar {
     gap: 0.5rem;
-  }
-
-  .shop-category-tab {
-    flex: 1 1 calc(50% - 0.25rem);
-    text-align: center;
-  }
-
-  .shop-catalog-shell {
-    min-height: 0;
+    grid-auto-columns: minmax(82px, 88px);
   }
 
   .shop-catalog-grid {
