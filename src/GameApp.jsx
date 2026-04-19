@@ -26,12 +26,18 @@ import {
 } from './services/gameService';
 
 const STATS = createStatsConfig(t);
+const FRANX_PROFILE_NAME = 'franx';
+const FRANX_TEST_COIN_BALANCE = 10000;
 
 function formatCooldown(msRemaining) {
   const totalSeconds = Math.max(0, Math.ceil(msRemaining / 1000));
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function isFranxProfile(name) {
+  return name?.trim().toLowerCase() === FRANX_PROFILE_NAME;
 }
 
 export default function GameApp({ session, onLogout }) {
@@ -46,39 +52,67 @@ export default function GameApp({ session, onLogout }) {
   const [activeTab, setActiveTab] = useState('pet');
   const [isMuted, setIsMuted] = useState(getMuteState());
   const [profileName, setProfileName] = useState(DEFAULT_PROFILE_NAME);
+  const [savedProfileName, setSavedProfileName] = useState(DEFAULT_PROFILE_NAME);
   const actionLockRef = useRef(false);
 
   const reportError = useCallback((error, fallback = t('sync_error')) => {
     setErrorMessage(error?.message || fallback);
   }, []);
 
-  const persistPetState = useCallback(async (nextPet) => {
-    return persistPet(session.user.id, nextPet);
-  }, [session.user.id]);
+  const applyFranxCoinOverride = useCallback((nextPet, nickname = savedProfileName) => {
+    if (!nextPet || !isFranxProfile(nickname)) {
+      return nextPet;
+    }
+
+    const currentCoins = Number(nextPet.coins) || 0;
+    if (currentCoins >= FRANX_TEST_COIN_BALANCE) {
+      return nextPet;
+    }
+
+    return {
+      ...nextPet,
+      coins: FRANX_TEST_COIN_BALANCE,
+    };
+  }, [savedProfileName]);
+
+  const persistPetState = useCallback(async (nextPet, nickname = savedProfileName) => {
+    return persistPet(session.user.id, applyFranxCoinOverride(nextPet, nickname));
+  }, [applyFranxCoinOverride, savedProfileName, session.user.id]);
 
   const fetchPet = useCallback(async () => {
     try {
       setLoading(true);
       setErrorMessage('');
       const { pet: loadedPet, profile } = await loadGameData(session.user.id, STATS);
+      const nextProfileName = profile?.nickname || DEFAULT_PROFILE_NAME;
 
       if (profile) {
-        setProfileName(profile.nickname || DEFAULT_PROFILE_NAME);
+        setProfileName(nextProfileName);
+        setSavedProfileName(nextProfileName);
         syncLocalSettingsFromProfile(profile);
 
         if (typeof profile.isMuted === 'boolean') {
           setMuteState(profile.isMuted);
           setIsMuted(profile.isMuted);
         }
+      } else {
+        setProfileName(DEFAULT_PROFILE_NAME);
+        setSavedProfileName(DEFAULT_PROFILE_NAME);
       }
 
-      setPet(loadedPet ?? null);
+      const nextPet = applyFranxCoinOverride(loadedPet ?? null, nextProfileName);
+      setPet(nextPet);
+
+      if (nextPet && loadedPet && nextPet.coins !== loadedPet.coins) {
+        void persistPetState(nextPet, nextProfileName).catch((error) => reportError(error));
+      }
+
       setLoading(false);
     } catch (error) {
       reportError(error);
       setLoading(false);
     }
-  }, [reportError, session.user.id]);
+  }, [applyFranxCoinOverride, persistPetState, reportError, session.user.id]);
 
   useEffect(() => {
     void fetchPet();
@@ -133,7 +167,8 @@ export default function GameApp({ session, onLogout }) {
           return previousPet;
         }
 
-        const nextPet = applyRuntimeDecayTick(previousPet, STATS);
+        const decayedPet = applyRuntimeDecayTick(previousPet, STATS);
+        const nextPet = applyFranxCoinOverride(decayedPet);
 
         if (!previousPet.isSick && nextPet.isSick) {
           playSound('warning');
@@ -152,14 +187,20 @@ export default function GameApp({ session, onLogout }) {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [pet, persistPetState, playedWarning, reportError]);
+  }, [applyFranxCoinOverride, pet, persistPetState, playedWarning, reportError]);
 
   const createPet = async () => {
     try {
       setLoading(true);
       setErrorMessage('');
       const createdPet = await adoptPet(session.user.id);
-      setPet(createdPet);
+      const nextPet = applyFranxCoinOverride(createdPet);
+      setPet(nextPet);
+
+      if (nextPet && nextPet.coins !== createdPet.coins) {
+        void persistPetState(nextPet).catch((error) => reportError(error));
+      }
+
       setActiveTab('pet');
       playSound('play');
     } catch (error) {
@@ -174,7 +215,7 @@ export default function GameApp({ session, onLogout }) {
       return;
     }
 
-    const nextPet = buildPetState(pet, updates);
+    const nextPet = applyFranxCoinOverride(buildPetState(pet, updates));
     setPet(nextPet);
     void persistPetState(nextPet).catch((error) => reportError(error));
   };
@@ -369,7 +410,17 @@ export default function GameApp({ session, onLogout }) {
       });
 
       setProfileName(updatedProfile.nickname);
+      setSavedProfileName(updatedProfile.nickname);
       syncLocalSettingsFromProfile(updatedProfile);
+
+      setPet((previousPet) => {
+        const nextPet = applyFranxCoinOverride(previousPet, updatedProfile.nickname);
+        if (nextPet && previousPet && nextPet.coins !== previousPet.coins) {
+          void persistPetState(nextPet, updatedProfile.nickname).catch((error) => reportError(error));
+        }
+        return nextPet;
+      });
+
       playSound('play');
       showFlyout(event, t('saved_ok'), '#10b981');
     } catch (error) {
@@ -410,7 +461,7 @@ export default function GameApp({ session, onLogout }) {
 
     const envs = ['day', 'sunset', 'night'];
     const nextEnv = envs[(envs.indexOf(pet.environment) + 1) % envs.length] || 'day';
-    const updatedPet = buildPetState(pet, { environment: nextEnv });
+    const updatedPet = applyFranxCoinOverride(buildPetState(pet, { environment: nextEnv }));
     setPet(updatedPet);
     void persistPetState(updatedPet).catch((error) => reportError(error));
   };
