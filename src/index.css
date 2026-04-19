@@ -430,6 +430,28 @@ body {
   margin-bottom: 0;
 }
 
+.care-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.care-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.care-stat {
+  min-width: 0;
+}
+
+.care-stat .stat-item {
+  margin-bottom: 0;
+}
+
 .stat-item {
   margin-bottom: 1rem;
 }
@@ -464,20 +486,6 @@ body {
 .fill-energy { background: linear-gradient(90deg, #6366f1, #818cf8); }
 .fill-happiness { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 
-.action-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  animation: slideUp 1s ease-out;
-}
-
-.game-panel-card.action-buttons {
-  margin: 0;
-  padding: 1rem;
-}
-
 .action-btn {
   display: flex;
   flex-direction: column;
@@ -494,21 +502,72 @@ body {
   transition: var(--transition);
 }
 
+.action-btn-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.action-btn-icon-large {
+  font-size: 1.75rem;
+}
+
+.action-btn-inline {
+  flex-direction: row;
+  justify-content: center;
+  min-height: 86px;
+  gap: 0.55rem;
+  padding: 0.9rem 1rem;
+}
+
+.action-btn-treasure {
+  width: 100%;
+  flex-direction: row;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 0.9rem;
+  min-height: 92px;
+  padding: 1rem 1.15rem;
+}
+
+.action-btn-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.18rem;
+}
+
+.action-btn-title {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.action-btn-subtitle {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .btn-act-feed { background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.3); }
 .btn-act-play { background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.3); }
 .btn-act-sleep { background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); }
 .btn-act-work { background: rgba(236, 72, 153, 0.2); border: 1px solid rgba(236, 72, 153, 0.3); }
 
-.action-btn:hover {
+.action-btn:hover:not(:disabled) {
   transform: translateY(-4px);
 }
-.btn-act-feed:hover { background: rgba(16, 185, 129, 0.4); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
-.btn-act-play:hover { background: rgba(245, 158, 11, 0.4); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
-.btn-act-sleep:hover { background: rgba(99, 102, 241, 0.4); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
-.btn-act-work:hover { background: rgba(236, 72, 153, 0.4); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3); }
+.btn-act-feed:hover:not(:disabled) { background: rgba(16, 185, 129, 0.4); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+.btn-act-play:hover:not(:disabled) { background: rgba(245, 158, 11, 0.4); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
+.btn-act-sleep:hover:not(:disabled) { background: rgba(99, 102, 241, 0.4); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+.btn-act-work:hover:not(:disabled) { background: rgba(236, 72, 153, 0.4); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3); }
 
 .action-btn:active {
   transform: translateY(0);
+}
+
+.action-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .nav-bar {
@@ -1218,6 +1277,10 @@ body {
     padding: 1rem;
   }
 
+  .care-action-row {
+    grid-template-columns: minmax(0, 1fr) 162px;
+  }
+
   .shop-item {
     padding: 1rem;
   }
@@ -1284,6 +1347,23 @@ body {
 }
 
 @media (max-width: 767px) {
+  .care-panel {
+    padding: 0.9rem;
+  }
+
+  .care-action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .action-btn-inline,
+  .action-btn-treasure {
+    width: 100%;
+  }
+
+  .action-btn-inline {
+    min-height: 72px;
+  }
+
   .auth-container {
     padding-inline: 1rem;
   }

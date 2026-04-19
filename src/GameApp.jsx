@@ -352,6 +352,9 @@ export default function GameApp({ session, onLogout }) {
     aliveMins = (new Date() - new Date(pet.born_at)) / (1000 * 60);
   }
   const statusMessage = getStatusMessage(pet, aliveMins, t);
+  const canFeed = Boolean(pet && pet.energy >= 5);
+  const canPlay = Boolean(pet && pet.energy >= 10);
+  const canWork = Boolean(pet && pet.energy >= 20 && pet.hunger >= 30);
 
   return (
     <div className="game-container">
@@ -470,24 +473,43 @@ export default function GameApp({ session, onLogout }) {
             </section>
 
             <aside className="game-side-column">
-              <div className="stats-container game-panel-card">
-                <StatBar label={STATS.hunger.label} value={pet.hunger} colorClass={STATS.hunger.color} />
-                <StatBar label={STATS.energy.label} value={pet.energy} colorClass={STATS.energy.color} />
-                <StatBar label={STATS.happiness.label} value={pet.happiness} colorClass={STATS.happiness.color} />
-              </div>
+              <div className="game-panel-card care-panel">
+                <div className="care-action-row">
+                  <div className="care-stat">
+                    <StatBar label={STATS.hunger.label} value={pet.hunger} colorClass={STATS.hunger.color} />
+                  </div>
+                  <button className="action-btn action-btn-inline btn-act-feed" onClick={actFeed} disabled={!canFeed} type="button">
+                    <span className="action-btn-icon">🍖</span>
+                    <span>{t('action_food')}</span>
+                  </button>
+                </div>
 
-              <div className="game-panel-card action-buttons">
-                <button className="action-btn btn-act-feed" onClick={actFeed} style={{opacity: pet.energy < 5 ? 0.3 : 1}}>
-                  <span style={{fontSize:'1.5rem'}}>🍖</span> {t('action_food')}
-                </button>
-                <button className="action-btn btn-act-play" onClick={actPlay} style={{opacity: pet.energy < 10 ? 0.3 : 1}}>
-                  <span style={{fontSize:'1.5rem'}}>🎾</span> {t('action_play_btn')}
-                </button>
-                <button className="action-btn btn-act-sleep" onClick={actSleep}>
-                  <span style={{fontSize:'1.5rem'}}>💤</span> {t('action_sleep_btn')}
-                </button>
-                <button className="action-btn btn-act-work" onClick={actWork} style={{opacity: (pet.energy < 20 || pet.hunger < 30) ? 0.3 : 1}}>
-                  <span style={{fontSize:'1.5rem'}}>💎</span> {t('action_treasure')}
+                <div className="care-action-row">
+                  <div className="care-stat">
+                    <StatBar label={STATS.energy.label} value={pet.energy} colorClass={STATS.energy.color} />
+                  </div>
+                  <button className="action-btn action-btn-inline btn-act-sleep" onClick={actSleep} type="button">
+                    <span className="action-btn-icon">💤</span>
+                    <span>{t('action_sleep_btn')}</span>
+                  </button>
+                </div>
+
+                <div className="care-action-row">
+                  <div className="care-stat">
+                    <StatBar label={STATS.happiness.label} value={pet.happiness} colorClass={STATS.happiness.color} />
+                  </div>
+                  <button className="action-btn action-btn-inline btn-act-play" onClick={actPlay} disabled={!canPlay} type="button">
+                    <span className="action-btn-icon">🎾</span>
+                    <span>{t('action_play_btn')}</span>
+                  </button>
+                </div>
+
+                <button className="action-btn action-btn-treasure btn-act-work" onClick={actWork} disabled={!canWork} type="button">
+                  <span className="action-btn-icon action-btn-icon-large">💎</span>
+                  <span className="action-btn-copy">
+                    <span className="action-btn-title">{t('action_treasure')}</span>
+                    <span className="action-btn-subtitle">{t('action_treasure_hint')}</span>
+                  </span>
                 </button>
               </div>
             </aside>
