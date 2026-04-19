@@ -45,6 +45,7 @@ function renderDailySummary(summary) {
     '',
     `🆕 Новых реальных игроков: <b>${totals.newPlayers ?? 0}</b>`,
     `🧪 Новых гостевых профилей: <b>${totals.newGuestProfiles ?? 0}</b>`,
+    `🏷️ Новых тестовых профилей: <b>${totals.newTestProfiles ?? 0}</b>`,
     `↩️ Возвратов: <b>${totals.returningSessions ?? 0}</b>`,
     `🔐 Закрепили аккаунт: <b>${totals.securedAccounts ?? 0}</b>`,
     `🐶 Новых питомцев: <b>${totals.petsAdopted ?? 0}</b>`,

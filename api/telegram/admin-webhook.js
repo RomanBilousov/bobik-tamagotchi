@@ -46,6 +46,15 @@ function formatDuration(ms) {
   return `${seconds}с`;
 }
 
+function isTestProfile(entity) {
+  if (entity?.adminTag === 'test-profile') {
+    return true;
+  }
+
+  const nickname = String(entity?.nickname || '').trim().toLowerCase();
+  return nickname === 'smoke test' || nickname.startsWith('qa ');
+}
+
 function getDashboardKeyboard() {
   return {
     inline_keyboard: [
@@ -101,6 +110,7 @@ function renderStats(dashboard) {
     '',
     `👤 Реальных игроков: <b>${totals.playersTotal ?? 0}</b>`,
     `🧪 Гостевых профилей: <b>${totals.guestProfiles ?? 0}</b>`,
+    `🏷️ Тестовых профилей: <b>${totals.testProfiles ?? 0}</b>`,
     `🗂️ Профилей всего: <b>${totals.profilesTotal ?? 0}</b>`,
     `📱 Telegram-профилей: <b>${totals.telegramPlayers ?? 0}</b>`,
     `🟢 Реально активны за 24ч: <b>${totals.active24h ?? 0}</b>`,
@@ -160,8 +170,9 @@ function renderPlayers(dashboard) {
   const lines = players.slice(0, 10).map((player, index) => {
     const handle = player.telegramUsername ? ` (@${player.telegramUsername})` : '';
     const secured = player.hasPassword ? 'да' : 'нет';
+    const tag = isTestProfile(player) ? ' [Тестовый профиль]' : '';
     return [
-      `${index + 1}. <b>${escapeTelegramHtml(player.nickname)}</b>${escapeTelegramHtml(handle)}`,
+      `${index + 1}. <b>${escapeTelegramHtml(player.nickname)}</b>${escapeTelegramHtml(handle)}${escapeTelegramHtml(tag)}`,
       `   Был в игре: ${formatDate(player.lastSeenAt)}`,
       `   Лучший забег: ${formatDuration(player.bestRunMs)}`,
       `   Монеты сейчас: ${player.liveCoins ?? 0}`,
@@ -176,9 +187,10 @@ function getPlayersKeyboard(dashboard) {
   const players = Array.isArray(dashboard?.recentPlayers) ? dashboard.recentPlayers : [];
   const rows = players.slice(0, 8).map((player, index) => {
     const handle = player.telegramUsername ? `@${player.telegramUsername}` : player.nickname;
+    const prefix = isTestProfile(player) ? '🧪 ' : '';
     return [
       {
-        text: `${index + 1}. ${handle}`.slice(0, 48),
+        text: `${prefix}${index + 1}. ${handle}`.slice(0, 48),
         callback_data: `admin:player:${player.userId}`,
       },
     ];
@@ -218,6 +230,7 @@ function renderDailySummary(summary) {
     '',
     `🆕 Новых реальных игроков: <b>${totals.newPlayers ?? 0}</b>`,
     `🧪 Новых гостевых профилей: <b>${totals.newGuestProfiles ?? 0}</b>`,
+    `🏷️ Новых тестовых профилей: <b>${totals.newTestProfiles ?? 0}</b>`,
     `↩️ Возвратов: <b>${totals.returningSessions ?? 0}</b>`,
     `🔐 Закрепили аккаунт: <b>${totals.securedAccounts ?? 0}</b>`,
     `🐶 Новых питомцев: <b>${totals.petsAdopted ?? 0}</b>`,
@@ -259,6 +272,7 @@ function renderPlayerDetail(detail) {
     `<b>${escapeTelegramHtml(profile.nickname || 'Игрок')}</b>${escapeTelegramHtml(handle)}`,
     `ID: <code>${escapeTelegramHtml(profile.id || '—')}</code>`,
     `Telegram ID: <code>${escapeTelegramHtml(profile.telegramUserId || '—')}</code>`,
+    `Тег: <b>${escapeTelegramHtml(isTestProfile(profile) ? 'Тестовый профиль' : '—')}</b>`,
     `Язык: <b>${escapeTelegramHtml(profile.lang || '—')}</b>`,
     `Аккаунт закреплён: <b>${profile.hasPassword ? 'да' : 'нет'}</b>`,
     `Первый вход: <b>${formatDate(profile.firstSeenAt)}</b>`,
