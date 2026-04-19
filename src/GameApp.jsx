@@ -27,6 +27,7 @@ import {
   saveProfileSettings,
 } from './services/gameService';
 import { bindTelegramBackButton, triggerTelegramHaptic } from './lib/telegram/webApp';
+import { trackPlayerEventSafely } from './services/analyticsService';
 
 const STATS = createStatsConfig(t);
 const FRANX_PROFILE_NAME = 'franx';
@@ -62,6 +63,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
   const [accountNewPassword, setAccountNewPassword] = useState('');
   const [accountConfirmPassword, setAccountConfirmPassword] = useState('');
   const actionLockRef = useRef(false);
+  const analyticsSessionTrackedRef = useRef(false);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -160,6 +162,20 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     void fetchPet();
   }, [fetchPet]);
 
+  useEffect(() => {
+    if (loading || analyticsSessionTrackedRef.current) {
+      return;
+    }
+
+    analyticsSessionTrackedRef.current = true;
+    void trackPlayerEventSafely('session_started', {
+      hasActivePet: Boolean(pet && !pet.died_at),
+      hasAnyPet: Boolean(pet),
+      activeTab,
+      profileName: savedProfileName,
+    });
+  }, [activeTab, loading, pet, savedProfileName]);
+
   const triggerParticle = (emoji) => {
     const id = Date.now() + Math.random();
     const vx = (Math.random() - 0.5) * 100 + 'px';
@@ -242,6 +258,11 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       if (nextPet && nextPet.coins !== createdPet.coins) {
         void persistPetState(nextPet).catch((error) => reportError(error));
       }
+
+      void trackPlayerEventSafely('pet_adopted', {
+        petId: nextPet?.id || createdPet?.id,
+        genetics: nextPet?.genetics || createdPet?.genetics || null,
+      });
 
       triggerTelegramHaptic('success');
       setActiveTab('pet');
@@ -528,6 +549,9 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       setAccountAccess(nextAccess);
       setAccountLoginName(nextAccess.loginName);
       clearAccountPasswordInputs();
+      void trackPlayerEventSafely(isPasswordChange ? 'account_password_changed' : 'account_secured', {
+        loginName: nextAccess.loginName,
+      });
       triggerTelegramHaptic('success');
       playSound('play');
       showFlyout(event, isPasswordChange ? t('account_password_changed') : t('account_password_set'), '#10b981');
