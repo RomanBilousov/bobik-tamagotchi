@@ -32,3 +32,19 @@ export function requireSupabase() {
 
   return supabase;
 }
+
+export async function requireAuthenticatedUserId(fallbackUserId) {
+  const client = requireSupabase();
+  const { data, error } = await client.auth.getSession();
+
+  if (error) {
+    throw error;
+  }
+
+  const resolvedUserId = data.session?.user?.id || fallbackUserId;
+  if (!resolvedUserId) {
+    throw new Error('Authentication required');
+  }
+
+  return resolvedUserId;
+}

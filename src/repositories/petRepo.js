@@ -1,4 +1,4 @@
-import { requireSupabase } from '../lib/supabase/client';
+import { requireAuthenticatedUserId, requireSupabase } from '../lib/supabase/client';
 import { normalizeHatState } from '../domain/hats';
 
 const PET_COLUMNS = [
@@ -197,10 +197,11 @@ function mapPetToUpdateRow(pet) {
 
 export async function getPetCount(userId) {
   const supabase = requireSupabase();
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
   const { count, error } = await supabase
     .from('pets')
     .select('id', { head: true, count: 'exact' })
-    .eq('user_id', userId);
+    .eq('user_id', resolvedUserId);
 
   if (error) {
     throw error;
@@ -211,10 +212,11 @@ export async function getPetCount(userId) {
 
 export async function getActivePet(userId) {
   const supabase = requireSupabase();
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
   const { data, error } = await supabase
     .from('pets')
     .select(PET_COLUMNS)
-    .eq('user_id', userId)
+    .eq('user_id', resolvedUserId)
     .is('died_at', null)
     .order('born_at', { ascending: false })
     .limit(1)
@@ -229,9 +231,10 @@ export async function getActivePet(userId) {
 
 export async function createPet(userId, petDraft) {
   const supabase = requireSupabase();
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
   const { data, error } = await supabase
     .from('pets')
-    .insert(mapPetToInsertRow(userId, petDraft))
+    .insert(mapPetToInsertRow(resolvedUserId, petDraft))
     .select(PET_COLUMNS)
     .single();
 
@@ -244,11 +247,12 @@ export async function createPet(userId, petDraft) {
 
 export async function updatePet(petId, userId, updates) {
   const supabase = requireSupabase();
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
   const { data, error } = await supabase
     .from('pets')
     .update(mapPetToUpdateRow(updates))
     .eq('id', petId)
-    .eq('user_id', userId)
+    .eq('user_id', resolvedUserId)
     .select(PET_COLUMNS)
     .single();
 
@@ -261,11 +265,12 @@ export async function updatePet(petId, userId, updates) {
 
 export async function deletePet(petId, userId) {
   const supabase = requireSupabase();
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
   const { error } = await supabase
     .from('pets')
     .delete()
     .eq('id', petId)
-    .eq('user_id', userId);
+    .eq('user_id', resolvedUserId);
 
   if (error) {
     throw error;
@@ -304,8 +309,9 @@ export async function importLegacyLeaderboard(userId, entries) {
   }
 
   const supabase = requireSupabase();
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
   const payload = leaderboardEntries.map((entry) =>
-    mapPetToInsertRow(userId, {
+    mapPetToInsertRow(resolvedUserId, {
       born_at: entry.born_at,
       died_at: entry.died_at,
       last_synced_at: entry.died_at,

@@ -1,4 +1,4 @@
-import { requireSupabase } from '../lib/supabase/client';
+import { requireAuthenticatedUserId, requireSupabase } from '../lib/supabase/client';
 
 const PROFILE_COLUMNS = 'id, nickname, lang, is_muted, created_at, updated_at';
 const SUPPORTED_LANGS = new Set(['en', 'ua', 'ru']);
@@ -52,10 +52,11 @@ function mapProfileInputToRow(input = {}) {
 
 export async function getProfile(userId) {
   const supabase = requireSupabase();
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
   const { data, error } = await supabase
     .from('profiles')
     .select(PROFILE_COLUMNS)
-    .eq('id', userId)
+    .eq('id', resolvedUserId)
     .maybeSingle();
 
   if (error) {
@@ -66,14 +67,15 @@ export async function getProfile(userId) {
 }
 
 export async function ensureProfile(userId, defaults = {}) {
-  const existing = await getProfile(userId);
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
+  const existing = await getProfile(resolvedUserId);
   if (existing) {
     return existing;
   }
 
   const supabase = requireSupabase();
   const payload = {
-    id: userId,
+    id: resolvedUserId,
     nickname: normalizeNickname(defaults.nickname),
     lang: normalizeLang(defaults.lang),
     is_muted: Boolean(defaults.isMuted),
@@ -94,12 +96,13 @@ export async function ensureProfile(userId, defaults = {}) {
 
 export async function updateProfile(userId, updates) {
   const supabase = requireSupabase();
+  const resolvedUserId = await requireAuthenticatedUserId(userId);
   const payload = mapProfileInputToRow(updates);
 
   const { data, error } = await supabase
     .from('profiles')
     .update(payload)
-    .eq('id', userId)
+    .eq('id', resolvedUserId)
     .select(PROFILE_COLUMNS)
     .single();
 
@@ -109,4 +112,3 @@ export async function updateProfile(userId, updates) {
 
   return mapRowToProfile(data);
 }
-
