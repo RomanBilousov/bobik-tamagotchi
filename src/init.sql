@@ -1,0 +1,7 @@
+-- Deprecated.
+-- Use supabase/migrations/20260419120000_init_bobik_schema.sql instead.
+-- The migration contains the current schema for:
+--   - public.profiles
+--   - public.pets
+--   - RLS policies
+--   - public.get_leaderboard(limit_count integer)

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Bobik icon">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <path d="M76 100 48 62l28-10 20 34M180 100l28-38-28-10-20 34" fill="#7c2d12"/>
+  <rect x="64" y="78" width="128" height="112" rx="52" fill="#f59e0b"/>
+  <rect x="88" y="116" width="80" height="52" rx="24" fill="#fff7ed"/>
+  <circle cx="104" cy="118" r="8" fill="#111827"/>
+  <circle cx="152" cy="118" r="8" fill="#111827"/>
+  <rect x="116" y="128" width="24" height="18" rx="8" fill="#111827"/>
+  <path d="M104 154c12 14 36 14 48 0" fill="none" stroke="#b45309" stroke-linecap="round" stroke-width="8"/>
+</svg>
+
