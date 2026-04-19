@@ -502,18 +502,51 @@ body {
 
 /* Leaderboard */
 .leaderboard-container {
-  padding: 1.5rem;
-  height: 100%;
+  width: 100%;
+}
+
+.leaderboard-content-shell {
+  width: 100%;
+}
+
+.leaderboard-screen {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  gap: 1rem;
+  min-height: 100%;
+  padding: 1rem;
 }
 
 .leaderboard-header {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  justify-content: space-between;
+}
+
+.leaderboard-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.leaderboard-title-icon {
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.leaderboard-title {
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  line-height: 1.1;
+}
+
+.leaderboard-alert {
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(127, 29, 29, 0.2);
+  color: #fecaca;
 }
 
 .back-btn {
@@ -528,8 +561,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  overflow-y: auto;
-  padding-bottom: 2rem;
 }
 
 .leader-item {
@@ -539,29 +570,45 @@ body {
   padding: 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
+  min-height: 88px;
 }
 
 .leader-rank {
-  font-size: 1.5rem;
+  font-size: clamp(1.35rem, 1.8vw, 1.6rem);
   font-weight: 800;
   color: var(--text-secondary);
-  width: 40px;
+  width: 56px;
+  flex-shrink: 0;
 }
 
 .leader-info {
   flex: 1;
+  min-width: 0;
 }
 
 .leader-name {
   font-weight: 600;
   font-size: 1.1rem;
+  overflow-wrap: anywhere;
 }
 
 .leader-time {
   font-size: 0.875rem;
   color: var(--text-secondary);
   font-family: monospace;
+  margin-top: 0.3rem;
+}
+
+.leaderboard-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 220px;
+  text-align: center;
+  color: var(--text-secondary);
 }
 
 .dead-pet-screen {
@@ -792,7 +839,7 @@ body {
   }
 
   .game-content-shell,
-  .leader-list {
+  .leaderboard-content-shell {
     min-height: 0;
     overflow-y: auto;
     padding-right: 0.35rem;
@@ -801,12 +848,12 @@ body {
   }
 
   .game-content-shell::-webkit-scrollbar,
-  .leader-list::-webkit-scrollbar {
+  .leaderboard-content-shell::-webkit-scrollbar {
     width: 8px;
   }
 
   .game-content-shell::-webkit-scrollbar-thumb,
-  .leader-list::-webkit-scrollbar-thumb {
+  .leaderboard-content-shell::-webkit-scrollbar-thumb {
     background: rgba(96, 165, 250, 0.45);
     border-radius: 999px;
   }
@@ -850,31 +897,24 @@ body {
   }
 
   .shop-grid,
-  .leaderboard-container {
+  .leaderboard-content-shell {
     max-width: 920px;
     margin: 0 auto;
     padding-bottom: 0;
+    width: 100%;
   }
 
   .shop-grid {
     overflow: visible;
   }
 
-  .leaderboard-container {
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    gap: 1rem;
-    height: min(900px, calc(100vh - 48px));
-    max-height: 900px;
-    overflow: hidden;
-  }
-
   .leaderboard-header {
     margin-bottom: 0;
   }
 
-  .leader-list {
-    padding-bottom: 0;
+  .leaderboard-screen {
+    min-height: 100%;
+    padding: 1.25rem;
   }
 }
 
@@ -948,13 +988,25 @@ body {
     grid-column: 1 / -1;
   }
 
-  .leaderboard-container {
+  .leaderboard-content-shell {
     max-width: 1080px;
   }
 
   .leader-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-content: start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .leaderboard-screen {
+    padding: 0.9rem;
+  }
+
+  .leader-item {
+    align-items: flex-start;
+  }
+
+  .leader-rank {
+    width: 48px;
   }
 }

@@ -41,38 +41,42 @@ export default function Leaderboard() {
 
   return (
     <div className="game-container leaderboard-container">
-      <div className="leaderboard-header">
-        <Trophy size={28} color="#fbbf24" style={{marginLeft: 'auto'}} />
-        <h2 style={{ flex: 1, textAlign: 'right' }}>{t('lb_title')}</h2>
-      </div>
-
-      <div className="leader-list">
-        {errorMessage ? (
-          <div style={{textAlign: 'center', color: '#fecaca', marginBottom: '1rem'}}>
-            {errorMessage}
-          </div>
-        ) : null}
-        {leaders.length === 0 ? (
-          <div style={{textAlign: 'center', color: '#94a3b8', marginTop: '2rem'}}>
-            {t('lb_empty')} <br/>
-            {t('lb_empty_desc')}
-          </div>
-        ) : (
-          leaders.map((l, idx) => (
-            <div key={`${l.id}-${idx}`} className="leader-item">
-              <div className="leader-rank">#{idx + 1}</div>
-              <div className="leader-info">
-                <div className="leader-name">
-                  {l.nickname || (`${t('user_lb')} ${l.user_id?.substring(0,6)}...`)}
-                </div>
-                <div className="leader-time">{t('lived_lb')} {formatLived(l.timeLivedMs)}</div>
-              </div>
+      <div className="game-content-shell leaderboard-content-shell">
+        <section className="leaderboard-screen game-panel-card">
+          <div className="leaderboard-header">
+            <div className="leaderboard-title-group">
+              <Trophy size={28} className="leaderboard-title-icon" />
+              <h2 className="leaderboard-title">{t('lb_title')}</h2>
             </div>
-          ))
-        )}
+          </div>
+
+          {errorMessage ? (
+            <div className="leaderboard-alert">{errorMessage}</div>
+          ) : null}
+
+          <div className="leader-list">
+            {leaders.length === 0 ? (
+              <div className="leaderboard-empty-state">
+                <p>{t('lb_empty')}</p>
+                <p>{t('lb_empty_desc')}</p>
+              </div>
+            ) : (
+              leaders.map((l, idx) => (
+                <div key={`${l.id}-${idx}`} className="leader-item">
+                  <div className="leader-rank">#{idx + 1}</div>
+                  <div className="leader-info">
+                    <div className="leader-name">
+                      {l.nickname || `${t('user_lb')} ${l.user_id?.substring(0, 6)}...`}
+                    </div>
+                    <div className="leader-time">{t('lived_lb')} {formatLived(l.timeLivedMs)}</div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
       </div>
 
-      {/* Навигационное меню, идентичное GameApp */}
       <div className="nav-bar">
         <Link to="/" className="nav-item">
           <Activity size={24} />
