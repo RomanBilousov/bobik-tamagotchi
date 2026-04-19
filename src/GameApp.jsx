@@ -500,10 +500,6 @@ export default function GameApp({ session, onLogout }) {
                       {petStateLabel}
                     </div>
                   </div>
-
-                  <div className={`pet-status-msg pet-status-msg-compact ${pet.isSick ? 'pet-status-msg-danger' : ''}`}>
-                    {statusMessage}
-                  </div>
                 </div>
               </div>
             </section>
