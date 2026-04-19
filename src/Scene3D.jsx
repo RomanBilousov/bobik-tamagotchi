@@ -294,46 +294,46 @@ function PetHat({ hatId }) {
   switch (hatId) {
     case 'baseball_cap':
       return (
-        <group position={[0, 0.57, 0.06]} rotation={[0.08, 0, 0]}>
-          <mesh position={[0, 0.08, -0.04]} castShadow>
+        <group position={[0, 0.45, 0.08]} rotation={[0.14, 0, 0]} scale={0.88}>
+          <mesh position={[0, 0.05, -0.08]} castShadow>
             <sphereGeometry args={[0.34, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
             <meshStandardMaterial color="#2563eb" roughness={0.45} />
           </mesh>
-          <mesh position={[0, 0.01, 0.28]} rotation={[0.18, 0, 0]} castShadow>
+          <mesh position={[0, -0.04, 0.3]} rotation={[0.24, 0, 0]} castShadow>
             <boxGeometry args={[0.48, 0.04, 0.22]} />
             <meshStandardMaterial color="#1d4ed8" roughness={0.4} />
           </mesh>
-          <mesh position={[0, 0.18, -0.18]} castShadow>
-            <boxGeometry args={[0.1, 0.1, 0.1]} />
+          <mesh position={[0, 0.14, -0.2]} castShadow>
+            <boxGeometry args={[0.08, 0.08, 0.08]} />
             <meshStandardMaterial color="#60a5fa" roughness={0.4} />
           </mesh>
         </group>
       );
     case 'beanie':
       return (
-        <group position={[0, 0.56, 0.01]}>
-          <mesh position={[0, 0.1, 0]} castShadow>
-            <sphereGeometry args={[0.33, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <group position={[0, 0.43, 0.03]} scale={0.9}>
+          <mesh position={[0, 0.08, 0]} castShadow>
+            <sphereGeometry args={[0.31, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
             <meshStandardMaterial color="#ef4444" roughness={0.55} />
           </mesh>
-          <mesh position={[0, -0.02, 0]} castShadow>
-            <cylinderGeometry args={[0.32, 0.32, 0.14, 20]} />
+          <mesh position={[0, -0.04, 0]} castShadow>
+            <cylinderGeometry args={[0.31, 0.31, 0.16, 20]} />
             <meshStandardMaterial color="#dc2626" roughness={0.45} />
           </mesh>
-          <mesh position={[0, 0.32, 0]} castShadow>
-            <sphereGeometry args={[0.08, 12, 12]} />
+          <mesh position={[0, 0.29, 0]} castShadow>
+            <sphereGeometry args={[0.065, 12, 12]} />
             <meshStandardMaterial color="#fee2e2" roughness={0.6} />
           </mesh>
         </group>
       );
     case 'bucket_hat':
       return (
-        <group position={[0, 0.52, 0.02]} rotation={[0.04, 0, 0]}>
-          <mesh position={[0, 0.12, 0]} castShadow>
+        <group position={[0, 0.41, 0.03]} rotation={[0.08, 0, 0]} scale={0.9}>
+          <mesh position={[0, 0.09, 0]} castShadow>
             <cylinderGeometry args={[0.22, 0.32, 0.24, 20]} />
             <meshStandardMaterial color="#f59e0b" roughness={0.55} />
           </mesh>
-          <mesh position={[0, 0, 0.02]} castShadow>
+          <mesh position={[0, -0.03, 0.03]} castShadow>
             <cylinderGeometry args={[0.42, 0.36, 0.06, 24]} />
             <meshStandardMaterial color="#fbbf24" roughness={0.5} />
           </mesh>
@@ -341,7 +341,7 @@ function PetHat({ hatId }) {
       );
     case 'antlers':
       return (
-        <group position={[0, 0.56, 0.01]}>
+        <group position={[0, 0.45, 0.01]} scale={0.9}>
           <RoundedBox args={[0.5, 0.07, 0.14]} radius={0.03} smoothness={2} position={[0, -0.06, 0]}>
             <meshPhysicalMaterial color="#8b5a2b" roughness={0.75} />
           </RoundedBox>
@@ -371,28 +371,28 @@ function PetHat({ hatId }) {
       );
     case 'beer_hat':
       return (
-        <group position={[0, 0.57, 0]}>
-          <mesh position={[0, 0.08, 0]} castShadow>
+        <group position={[0, 0.45, 0.02]} scale={0.88}>
+          <mesh position={[0, 0.06, 0]} castShadow>
             <sphereGeometry args={[0.3, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
             <meshStandardMaterial color="#22c55e" roughness={0.45} />
           </mesh>
-          <mesh position={[0, -0.01, 0]} castShadow>
+          <mesh position={[0, -0.03, 0]} castShadow>
             <cylinderGeometry args={[0.33, 0.33, 0.08, 20]} />
             <meshStandardMaterial color="#16a34a" roughness={0.4} />
           </mesh>
-          <mesh position={[-0.4, 0.13, 0]} castShadow rotation={[0, 0, 0.1]}>
+          <mesh position={[-0.36, 0.08, 0]} castShadow rotation={[0, 0, 0.1]}>
             <cylinderGeometry args={[0.12, 0.12, 0.36, 16]} />
             <meshStandardMaterial color="#ef4444" roughness={0.35} />
           </mesh>
-          <mesh position={[0.4, 0.13, 0]} castShadow rotation={[0, 0, -0.1]}>
+          <mesh position={[0.36, 0.08, 0]} castShadow rotation={[0, 0, -0.1]}>
             <cylinderGeometry args={[0.12, 0.12, 0.36, 16]} />
             <meshStandardMaterial color="#3b82f6" roughness={0.35} />
           </mesh>
-          <mesh position={[-0.4, 0.36, 0]} castShadow>
+          <mesh position={[-0.36, 0.31, 0]} castShadow>
             <cylinderGeometry args={[0.03, 0.03, 0.1, 10]} />
             <meshStandardMaterial color="#fde68a" roughness={0.5} />
           </mesh>
-          <mesh position={[0.4, 0.36, 0]} castShadow>
+          <mesh position={[0.36, 0.31, 0]} castShadow>
             <cylinderGeometry args={[0.03, 0.03, 0.1, 10]} />
             <meshStandardMaterial color="#fde68a" roughness={0.5} />
           </mesh>
@@ -400,16 +400,16 @@ function PetHat({ hatId }) {
       );
     case LEGACY_HAT_ID:
       return (
-        <group position={[0, 0.58, 0]}>
-          <mesh position={[0, 0.02, 0]} castShadow rotation={[0.04, 0, 0]}>
+        <group position={[0, 0.47, 0.02]} scale={0.88}>
+          <mesh position={[0, -0.02, 0]} castShadow rotation={[0.08, 0, 0]}>
             <cylinderGeometry args={[0.52, 0.58, 0.08, 24]} />
             <meshPhysicalMaterial color="#6d28d9" roughness={0.45} clearcoat={0.2} />
           </mesh>
-          <mesh position={[0, 0.38, 0]} castShadow rotation={[0.06, 0.08, 0]}>
-            <coneGeometry args={[0.28, 0.78, 24]} />
+          <mesh position={[0, 0.31, 0]} castShadow rotation={[0.1, 0.08, 0]}>
+            <coneGeometry args={[0.28, 0.66, 24]} />
             <meshPhysicalMaterial color="#7c3aed" roughness={0.4} clearcoat={0.3} />
           </mesh>
-          <mesh position={[0, 0.14, 0]} castShadow>
+          <mesh position={[0, 0.1, 0]} castShadow>
             <cylinderGeometry args={[0.24, 0.28, 0.08, 20]} />
             <meshStandardMaterial color="#fbbf24" roughness={0.35} />
           </mesh>
@@ -700,9 +700,10 @@ function PetModel({ userTarget, isSick, actionState, ageScale, activeHat, hasHat
     }
 
     const isFloppy = genetics?.earType === 'floppy';
+    const headwearEarDrop = resolvedHat ? (isFloppy ? 0.12 : 0.55) : 0;
     const baseEarDrop = isFloppy ? 1.5 : 0.2; 
-    if (lEar.current) lEar.current.rotation.x = lerp(lEar.current.rotation.x, baseEarDrop + targetEarDrop, 0.1);
-    if (rEar.current) rEar.current.rotation.x = lerp(rEar.current.rotation.x, baseEarDrop + targetEarDrop, 0.1);
+    if (lEar.current) lEar.current.rotation.x = lerp(lEar.current.rotation.x, baseEarDrop + targetEarDrop + headwearEarDrop, 0.1);
+    if (rEar.current) rEar.current.rotation.x = lerp(rEar.current.rotation.x, baseEarDrop + targetEarDrop + headwearEarDrop, 0.1);
 
     if (jaw.current) {
         if (actionState === 'bark') {
@@ -747,6 +748,7 @@ function PetModel({ userTarget, isSick, actionState, ageScale, activeHat, hasHat
   const snoutExt = genetics?.snoutLength || 0.4;
   const isSleeping = actionState === 'sleep';
   const resolvedHat = activeHat || (hasHat ? LEGACY_HAT_ID : null);
+  const earYOffset = resolvedHat ? -0.1 : 0;
 
   return (
     <group 
@@ -817,12 +819,12 @@ function PetModel({ userTarget, isSick, actionState, ageScale, activeHat, hasHat
               </RoundedBox>
           </group>
 
-          <group position={[-0.25, 0.35, 0]} ref={lEar}>
+          <group position={[-0.25, 0.35 + earYOffset, 0]} ref={lEar}>
             <RoundedBox args={[0.2, 0.4, 0.15]} radius={0.05} smoothness={4} position={[0, 0.1, 0]} rotation={[0, 0, 0.3]}>
               <meshPhysicalMaterial color={color} roughness={0.9} />
             </RoundedBox>
           </group>
-          <group position={[0.25, 0.35, 0]} ref={rEar}>
+          <group position={[0.25, 0.35 + earYOffset, 0]} ref={rEar}>
              <RoundedBox args={[0.2, 0.4, 0.15]} radius={0.05} smoothness={4} position={[0, 0.1, 0]} rotation={[0, 0, -0.3]}>
               <meshPhysicalMaterial color={color} roughness={0.9} />
             </RoundedBox>
