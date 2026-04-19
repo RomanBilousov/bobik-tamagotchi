@@ -1,38 +1,103 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { t, cycleLang, getLang } from './i18n';
 import Scene3D from './Scene3D';
+import { restoreAccountSession } from './services/accountService';
 import {
   SUPABASE_CONFIG_ERROR,
   isSupabaseConfigured,
   supabase,
 } from './lib/supabase/client';
 
-export default function Auth({ appError }) {
-  const [loading, setLoading] = useState(false);
+export default function Auth({ appError, session, onLogout }) {
+  const navigate = useNavigate();
+  const [guestLoading, setGuestLoading] = useState(false);
+  const [restoreLoading, setRestoreLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [loginName, setLoginName] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleAuth = async (e) => {
-    e.preventDefault();
+  const handleGuestAuth = async (event) => {
+    event.preventDefault();
+
+    if (session) {
+      navigate('/');
+      return;
+    }
 
     if (!isSupabaseConfigured || !supabase) {
       setErrorMessage(appError || SUPABASE_CONFIG_ERROR);
       return;
     }
 
-    setLoading(true);
+    setGuestLoading(true);
     setErrorMessage('');
 
     const { error } = await supabase.auth.signInAnonymously();
     if (error) {
       setErrorMessage(error.message || t('auth_sign_in_failed'));
-      setLoading(false);
+      setGuestLoading(false);
       return;
     }
 
-    setLoading(false);
+    setGuestLoading(false);
+    navigate('/');
+  };
+
+  const handleRestore = async (event) => {
+    event.preventDefault();
+
+    if (!isSupabaseConfigured || !supabase) {
+      setErrorMessage(appError || SUPABASE_CONFIG_ERROR);
+      return;
+    }
+
+    if (!loginName.trim() || !password.trim()) {
+      setErrorMessage(t('auth_restore_missing'));
+      return;
+    }
+
+    let createdTempSession = false;
+
+    try {
+      setRestoreLoading(true);
+      setErrorMessage('');
+
+      if (!session) {
+        const { error } = await supabase.auth.signInAnonymously();
+        if (error) {
+          throw error;
+        }
+
+        createdTempSession = true;
+      }
+
+      await restoreAccountSession({
+        loginName,
+        password,
+      });
+
+      setPassword('');
+      navigate('/');
+    } catch (error) {
+      setErrorMessage(error?.message || t('auth_restore_failed'));
+
+      if (createdTempSession) {
+        await supabase.auth.signOut();
+      }
+    } finally {
+      setRestoreLoading(false);
+    }
+  };
+
+  const handleSwitchAccount = async () => {
+    setErrorMessage('');
+    await onLogout?.();
   };
 
   const blockingMessage = appError || errorMessage;
+  const isBusy = guestLoading || restoreLoading;
+  const showSessionActions = Boolean(session && !isBusy);
 
   return (
     <div className="auth-container auth-shell">
@@ -53,20 +118,85 @@ export default function Auth({ appError }) {
         </span>
       </p>
 
-      <div className="glass-card">
-        {blockingMessage ? (
-          <div className="app-alert app-alert--compact">{blockingMessage}</div>
-        ) : null}
-        <form onSubmit={handleAuth}>
-          <button
-            className="btn-primary auth-submit-btn"
-            disabled={loading || !isSupabaseConfigured}
-            type="submit"
-          >
-            {loading ? t('loading') : t('play_guest')}
-          </button>
-        </form>
-      </div>
+      {showSessionActions ? (
+        <div className="glass-card auth-card-stack">
+          {blockingMessage ? (
+            <div className="app-alert app-alert--compact">{blockingMessage}</div>
+          ) : null}
+
+          <div className="auth-card-copy">
+            <div className="shop-item-title">{t('auth_session_title')}</div>
+            <div className="shop-item-desc">{t('auth_session_desc')}</div>
+          </div>
+
+          <div className="auth-button-stack">
+            <button className="btn-primary auth-submit-btn" onClick={() => navigate('/')} type="button">
+              {t('auth_continue')}
+            </button>
+            <button className="shop-item-buy shop-item-buy--muted auth-secondary-btn" onClick={handleSwitchAccount} type="button">
+              {t('auth_switch_account')}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="glass-card auth-card-stack">
+            {blockingMessage ? (
+              <div className="app-alert app-alert--compact">{blockingMessage}</div>
+            ) : null}
+
+            <div className="auth-card-copy">
+              <div className="shop-item-title">{t('play_guest')}</div>
+              <div className="shop-item-desc">{t('auth_guest_cta')}</div>
+            </div>
+
+            <form onSubmit={handleGuestAuth}>
+              <button
+                className="btn-primary auth-submit-btn"
+                disabled={isBusy || !isSupabaseConfigured}
+                type="submit"
+              >
+                {guestLoading ? t('loading') : t('play_guest')}
+              </button>
+            </form>
+          </div>
+
+          <div className="glass-card auth-card-stack auth-card-stack--secondary">
+            <div className="auth-card-copy">
+              <div className="shop-item-title">{t('auth_restore_title')}</div>
+              <div className="shop-item-desc">{t('auth_restore_desc')}</div>
+            </div>
+
+            <form className="auth-restore-form" onSubmit={handleRestore}>
+              <input
+                autoComplete="username"
+                className="settings-input"
+                disabled={isBusy}
+                onChange={(event) => setLoginName(event.target.value)}
+                placeholder={t('auth_login_name')}
+                type="text"
+                value={loginName}
+              />
+              <input
+                autoComplete="current-password"
+                className="settings-input"
+                disabled={isBusy}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder={t('auth_password')}
+                type="password"
+                value={password}
+              />
+              <button
+                className="shop-item-buy auth-submit-btn auth-secondary-btn"
+                disabled={isBusy || !isSupabaseConfigured}
+                type="submit"
+              >
+                {restoreLoading ? t('loading') : t('auth_restore_button')}
+              </button>
+            </form>
+          </div>
+        </>
+      )}
     </div>
   );
 }

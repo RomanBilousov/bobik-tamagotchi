@@ -181,7 +181,7 @@ function App() {
         />
         <Route 
           path="/auth" 
-          element={!session ? <Auth appError={appError} /> : <Navigate to="/" replace />} 
+          element={<Auth appError={appError} session={session} onLogout={handleLogout} />} 
         />
         <Route 
           path="/leaderboard" 

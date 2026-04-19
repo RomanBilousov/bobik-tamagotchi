@@ -4,6 +4,16 @@ export default function SettingsPanel({
   profileName,
   onProfileNameChange,
   onSaveProfile,
+  accountLoginName,
+  onAccountLoginNameChange,
+  accountHasPassword,
+  accountCurrentPassword,
+  onAccountCurrentPasswordChange,
+  accountNewPassword,
+  onAccountNewPasswordChange,
+  accountConfirmPassword,
+  onAccountConfirmPasswordChange,
+  onSaveAccountAccess,
   onCycleLang,
   isMuted,
   onToggleMute,
@@ -33,6 +43,61 @@ export default function SettingsPanel({
           />
           <button className="shop-item-buy settings-action-btn" onClick={onSaveProfile} type="button">
             {t('save_data')}
+          </button>
+        </div>
+      </section>
+
+      <section className="settings-card settings-card--form">
+        <div className="settings-card-copy">
+          <div className="shop-item-title">{t('account_access_title')}</div>
+          <div className="shop-item-desc">
+            {accountHasPassword ? t('account_access_desc_change') : t('account_access_desc_create')}
+          </div>
+        </div>
+
+        <div className="settings-form-grid">
+          <input
+            autoComplete="username"
+            className="settings-input"
+            onChange={(event) => onAccountLoginNameChange(event.target.value)}
+            placeholder={t('account_login_name')}
+            type="text"
+            value={accountLoginName}
+          />
+
+          {accountHasPassword ? (
+            <input
+              autoComplete="current-password"
+              className="settings-input"
+              onChange={(event) => onAccountCurrentPasswordChange(event.target.value)}
+              placeholder={t('account_current_password')}
+              type="password"
+              value={accountCurrentPassword}
+            />
+          ) : null}
+
+          <input
+            autoComplete="new-password"
+            className="settings-input"
+            onChange={(event) => onAccountNewPasswordChange(event.target.value)}
+            placeholder={t('account_new_password')}
+            type="password"
+            value={accountNewPassword}
+          />
+
+          <input
+            autoComplete="new-password"
+            className="settings-input"
+            onChange={(event) => onAccountConfirmPasswordChange(event.target.value)}
+            placeholder={t('account_confirm_password')}
+            type="password"
+            value={accountConfirmPassword}
+          />
+
+          <div className="settings-inline-note">{t('account_access_hint')}</div>
+
+          <button className="shop-item-buy settings-action-btn settings-action-btn--wide" onClick={onSaveAccountAccess} type="button">
+            {accountHasPassword ? t('account_change_password') : t('account_set_password')}
           </button>
         </div>
       </section>

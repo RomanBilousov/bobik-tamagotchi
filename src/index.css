@@ -136,6 +136,33 @@ body {
   animation: slideUp 0.6s ease-out;
 }
 
+.auth-card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.auth-card-stack--secondary {
+  margin-top: 0.85rem;
+}
+
+.auth-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.auth-button-stack,
+.auth-restore-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.auth-secondary-btn {
+  width: 100%;
+}
+
 .app-alert {
   padding: 1rem 1.1rem;
   margin-bottom: 1rem;
@@ -1698,6 +1725,11 @@ body {
   align-items: center;
 }
 
+.settings-form-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
 .settings-input {
   width: 100%;
   min-width: 0;
@@ -1718,6 +1750,16 @@ body {
 
 .settings-action-btn {
   flex-shrink: 0;
+}
+
+.settings-action-btn--wide {
+  width: 100%;
+}
+
+.settings-inline-note {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
 }
 
 .settings-card--danger {

@@ -18,6 +18,7 @@ import { syncLocalSettingsFromProfile } from './lib/storage/legacyLocalStorage';
 import BottomNav from './components/game/BottomNav';
 import SettingsPanel from './components/game/SettingsPanel';
 import ShopPanel from './components/game/ShopPanel';
+import { loadAccountAccess, saveAccountAccess } from './services/accountService';
 import {
   adoptPet,
   loadGameData,
@@ -53,6 +54,11 @@ export default function GameApp({ session, onLogout }) {
   const [isMuted, setIsMuted] = useState(getMuteState());
   const [profileName, setProfileName] = useState(DEFAULT_PROFILE_NAME);
   const [savedProfileName, setSavedProfileName] = useState(DEFAULT_PROFILE_NAME);
+  const [accountAccess, setAccountAccess] = useState({ hasPassword: false, loginName: '' });
+  const [accountLoginName, setAccountLoginName] = useState('');
+  const [accountCurrentPassword, setAccountCurrentPassword] = useState('');
+  const [accountNewPassword, setAccountNewPassword] = useState('');
+  const [accountConfirmPassword, setAccountConfirmPassword] = useState('');
   const actionLockRef = useRef(false);
 
   const reportError = useCallback((error, fallback = t('sync_error')) => {
@@ -79,11 +85,23 @@ export default function GameApp({ session, onLogout }) {
     return persistPet(session.user.id, applyFranxCoinOverride(nextPet, nickname));
   }, [applyFranxCoinOverride, savedProfileName, session.user.id]);
 
+  const clearAccountPasswordInputs = useCallback(() => {
+    setAccountCurrentPassword('');
+    setAccountNewPassword('');
+    setAccountConfirmPassword('');
+  }, []);
+
   const fetchPet = useCallback(async () => {
     try {
       setLoading(true);
       setErrorMessage('');
-      const { pet: loadedPet, profile } = await loadGameData(session.user.id, STATS);
+      const [
+        { pet: loadedPet, profile },
+        accessStatus,
+      ] = await Promise.all([
+        loadGameData(session.user.id, STATS),
+        loadAccountAccess(),
+      ]);
       const nextProfileName = profile?.nickname || DEFAULT_PROFILE_NAME;
 
       if (profile) {
@@ -102,6 +120,9 @@ export default function GameApp({ session, onLogout }) {
 
       const nextPet = applyFranxCoinOverride(loadedPet ?? null, nextProfileName);
       setPet(nextPet);
+      setAccountAccess(accessStatus);
+      setAccountLoginName(accessStatus.loginName || nextProfileName);
+      clearAccountPasswordInputs();
 
       if (nextPet && loadedPet && nextPet.coins !== loadedPet.coins) {
         void persistPetState(nextPet, nextProfileName).catch((error) => reportError(error));
@@ -112,7 +133,7 @@ export default function GameApp({ session, onLogout }) {
       reportError(error);
       setLoading(false);
     }
-  }, [applyFranxCoinOverride, persistPetState, reportError, session.user.id]);
+  }, [applyFranxCoinOverride, clearAccountPasswordInputs, persistPetState, reportError, session.user.id]);
 
   useEffect(() => {
     void fetchPet();
@@ -411,6 +432,9 @@ export default function GameApp({ session, onLogout }) {
 
       setProfileName(updatedProfile.nickname);
       setSavedProfileName(updatedProfile.nickname);
+      if (!accountAccess.loginName) {
+        setAccountLoginName(updatedProfile.nickname);
+      }
       syncLocalSettingsFromProfile(updatedProfile);
 
       setPet((previousPet) => {
@@ -426,6 +450,45 @@ export default function GameApp({ session, onLogout }) {
     } catch (error) {
       reportError(error, t('profile_save_error'));
       showFlyout(event, t('profile_save_error'), '#ef4444');
+    }
+  };
+
+  const handleSaveAccountAccess = async (event) => {
+    if (!accountLoginName.trim()) {
+      reportError(new Error(t('account_access_login_required')), t('account_access_error'));
+      showFlyout(event, t('account_access_login_required'), '#ef4444');
+      return;
+    }
+
+    if (accountNewPassword.length < 6) {
+      reportError(new Error(t('account_access_password_short')), t('account_access_error'));
+      showFlyout(event, t('account_access_password_short'), '#ef4444');
+      return;
+    }
+
+    if (accountNewPassword !== accountConfirmPassword) {
+      reportError(new Error(t('account_access_password_mismatch')), t('account_access_error'));
+      showFlyout(event, t('account_access_password_mismatch'), '#ef4444');
+      return;
+    }
+
+    const isPasswordChange = accountAccess.hasPassword;
+
+    try {
+      const nextAccess = await saveAccountAccess({
+        loginName: accountLoginName,
+        newPassword: accountNewPassword,
+        currentPassword: isPasswordChange ? accountCurrentPassword : null,
+      });
+
+      setAccountAccess(nextAccess);
+      setAccountLoginName(nextAccess.loginName);
+      clearAccountPasswordInputs();
+      playSound('play');
+      showFlyout(event, isPasswordChange ? t('account_password_changed') : t('account_password_set'), '#10b981');
+    } catch (error) {
+      reportError(error, t('account_access_error'));
+      showFlyout(event, error?.message || t('account_access_error'), '#ef4444');
     }
   };
 
@@ -562,6 +625,16 @@ export default function GameApp({ session, onLogout }) {
             profileName={profileName}
             onProfileNameChange={setProfileName}
             onSaveProfile={handleUpdateProfile}
+            accountLoginName={accountLoginName}
+            onAccountLoginNameChange={setAccountLoginName}
+            accountHasPassword={accountAccess.hasPassword}
+            accountCurrentPassword={accountCurrentPassword}
+            onAccountCurrentPasswordChange={setAccountCurrentPassword}
+            accountNewPassword={accountNewPassword}
+            onAccountNewPasswordChange={setAccountNewPassword}
+            accountConfirmPassword={accountConfirmPassword}
+            onAccountConfirmPasswordChange={setAccountConfirmPassword}
+            onSaveAccountAccess={handleSaveAccountAccess}
             onCycleLang={handleCycleLang}
             isMuted={isMuted}
             onToggleMute={handleToggleMute}
