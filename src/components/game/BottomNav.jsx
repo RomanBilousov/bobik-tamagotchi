@@ -7,16 +7,16 @@ export default function BottomNav({ hasActivePet, activeTab, onTabChange, isSick
     <div className="nav-bar">
       {hasActivePet ? (
         <>
-          <button className={`nav-item ${activeTab === 'pet' ? 'active' : ''}`} onClick={() => onTabChange('pet')} style={{background:'none',border:'none'}}>
+          <button className={`nav-item nav-button-reset ${activeTab === 'pet' ? 'active' : ''}`} onClick={() => onTabChange('pet')} type="button">
             <Activity size={24} />
             <span>{t('nav_pet')}</span>
           </button>
-          <button className={`nav-item ${activeTab === 'shop' ? 'active' : ''}`} onClick={() => onTabChange('shop')} style={{background:'none',border:'none', position:'relative'}}>
+          <button className={`nav-item nav-button-reset ${activeTab === 'shop' ? 'active' : ''}`} onClick={() => onTabChange('shop')} type="button">
             <ShoppingCart size={24} />
             <span>{t('nav_shop')}</span>
-            {isSick && <div style={{position:'absolute', top: 4, right: 8, width: 8, height: 8, background: '#ef4444', borderRadius: '50%'}}></div>}
+            {isSick && <div className="nav-item-dot"></div>}
           </button>
-          <button className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => onTabChange('settings')} style={{background:'none',border:'none'}}>
+          <button className={`nav-item nav-button-reset ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => onTabChange('settings')} type="button">
             <Settings size={24} />
             <span>{t('nav_settings')}</span>
           </button>
@@ -35,4 +35,3 @@ export default function BottomNav({ hasActivePet, activeTab, onTabChange, isSick
     </div>
   );
 }
-

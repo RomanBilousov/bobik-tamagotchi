@@ -86,7 +86,7 @@ export default function Leaderboard() {
           <Settings size={24} />
           <span>{t('nav_settings')}</span>
         </Link>
-        <button className="nav-item active" style={{background:'none', border:'none'}}>
+        <button className="nav-item nav-button-reset active" type="button">
           <Trophy size={24} />
           <span>{t('nav_lb')}</span>
         </button>

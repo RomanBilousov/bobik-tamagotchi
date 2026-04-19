@@ -454,14 +454,50 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.25rem;
   font-size: 0.75rem;
   font-weight: 500;
   transition: var(--transition);
+  min-height: 56px;
+  padding: 0.35rem 0.25rem;
+  border-radius: 14px;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-item.active, .nav-item:hover {
   color: var(--primary-color);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.nav-item span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item svg {
+  flex-shrink: 0;
+}
+
+.nav-button-reset {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.nav-item-dot {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
 }
 
 /* Leaderboard */
@@ -708,7 +744,7 @@ body {
 
 @media (min-width: 768px) {
   #root {
-    padding: 24px;
+    padding: clamp(14px, 2vw, 24px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -725,7 +761,7 @@ body {
 
   .game-container {
     width: min(980px, 100%);
-    height: min(900px, calc(100vh - 48px));
+    height: min(900px, calc(100vh - 28px));
     max-height: 900px;
     padding: 1.25rem;
     border-radius: 32px;
@@ -751,6 +787,8 @@ body {
     margin-bottom: 0;
     position: relative;
     z-index: 2;
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
 
   .game-content-shell,
@@ -798,6 +836,17 @@ body {
   .nav-item {
     flex: 1;
     min-width: 0;
+    min-height: 64px;
+    padding-inline: 0.4rem;
+  }
+
+  .nav-item span {
+    font-size: 0.72rem;
+  }
+
+  .nav-item svg {
+    width: 22px;
+    height: 22px;
   }
 
   .shop-grid,
@@ -829,7 +878,36 @@ body {
   }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 768px) and (max-width: 1359px) {
+  .game-container {
+    width: min(920px, 100%);
+  }
+
+  .game-main-layout {
+    gap: 1rem;
+  }
+
+  .pet-display {
+    height: clamp(320px, 42vh, 440px);
+  }
+
+  .stats-container,
+  .game-panel-card.action-buttons {
+    padding: 1rem;
+  }
+
+  .shop-item {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .nav-item span {
+    font-size: 0.68rem;
+  }
+}
+
+@media (min-width: 1360px) {
   .game-container {
     width: min(1220px, calc(100vw - 64px));
   }
