@@ -64,6 +64,7 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
   const [accountConfirmPassword, setAccountConfirmPassword] = useState('');
   const actionLockRef = useRef(false);
   const analyticsSessionTrackedRef = useRef(false);
+  const trackedDeathPetIdRef = useRef('');
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -175,6 +176,24 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       profileName: savedProfileName,
     });
   }, [activeTab, loading, pet, savedProfileName]);
+
+  useEffect(() => {
+    if (!pet?.died_at || !pet?.id) {
+      return;
+    }
+
+    if (trackedDeathPetIdRef.current === pet.id) {
+      return;
+    }
+
+    trackedDeathPetIdRef.current = pet.id;
+    void trackPlayerEventSafely('pet_died', {
+      petId: pet.id,
+      bornAt: pet.born_at,
+      diedAt: pet.died_at,
+      coins: pet.coins ?? 0,
+    });
+  }, [pet]);
 
   const triggerParticle = (emoji) => {
     const id = Date.now() + Math.random();
@@ -383,6 +402,10 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     triggerParticle('💰');
     showFlyout(event, `+${earned} ${t('coins_short')}`, '#fbbf24');
     triggerActionAnim('work', 4000);
+    void trackPlayerEventSafely('treasure_found', {
+      earned,
+      coinsAfter: (pet.coins || 0) + earned,
+    });
   };
 
   const handlePetClick = () => {
@@ -409,6 +432,10 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       playSound('feed');
       triggerParticle('🥩');
       showFlyout(event, `-30 ${t('coins_short')}`, '#ef4444');
+      void trackPlayerEventSafely('premium_food_bought', {
+        price: 30,
+        coinsAfter: pet.coins - 30,
+      });
     }
   };
 
@@ -419,6 +446,10 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       playSound('heal');
       triggerParticle('💊');
       showFlyout(event, '+ Вылечен!', '#10b981');
+      void trackPlayerEventSafely('medicine_bought', {
+        price: 50,
+        coinsAfter: pet.coins - 50,
+      });
     }
   };
 
@@ -443,6 +474,9 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
       playSound('play');
       triggerParticle(selectedHat.icon);
       showFlyout(event, t('shop_hat_equipped'), '#10b981');
+      void trackPlayerEventSafely('hat_equipped', {
+        hatId,
+      });
       return;
     }
 
@@ -460,6 +494,11 @@ export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
     playSound('play');
     triggerParticle(selectedHat.icon);
     showFlyout(event, `-${price} ${t('coins_short')}`, '#ef4444');
+    void trackPlayerEventSafely('hat_purchased', {
+      hatId,
+      price,
+      coinsAfter: pet.coins - price,
+    });
   };
 
   const buyEnvSunset = (event) => {

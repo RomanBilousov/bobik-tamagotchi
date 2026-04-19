@@ -82,6 +82,10 @@ function buildNotificationText(eventType, record, telegramUser, payload = {}) {
     return `🐶 <b>Новый питомец</b>\n${player}\nПрофиль: <b>${nickname}</b>`;
   }
 
+  if (eventType === 'pet_died') {
+    return `👻 <b>Питомец погиб</b>\n${player}\nПрофиль: <b>${nickname}</b>`;
+  }
+
   return `📊 <b>Новое событие</b>\n${player}\nТип: <b>${escapeTelegramHtml(eventType)}</b>`;
 }
 
@@ -149,7 +153,7 @@ export default async function handler(req, res) {
         accessToken,
       );
 
-      if (eventType === 'account_secured' || eventType === 'pet_adopted') {
+      if (eventType === 'account_secured' || eventType === 'pet_adopted' || eventType === 'pet_died') {
         await notifyAdmin(buildNotificationText(eventType, { ...result, source }, telegramUser, payload));
       }
     }
