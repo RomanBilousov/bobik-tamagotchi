@@ -1589,16 +1589,23 @@ body {
   }
 
   .care-action-row {
-    grid-template-columns: 1fr;
-  }
-
-  .action-btn-inline,
-  .action-btn-treasure {
-    width: 100%;
+    grid-template-columns: minmax(0, 1fr) 148px;
+    align-items: center;
   }
 
   .action-btn-inline {
-    min-height: 72px;
+    width: auto;
+    min-height: 84px;
+    padding: 0.85rem 0.8rem;
+    gap: 0.45rem;
+  }
+
+  .action-btn-inline span:last-child {
+    font-size: 0.88rem;
+  }
+
+  .action-btn-treasure {
+    width: 100%;
   }
 
   .auth-container {
@@ -1650,5 +1657,20 @@ body {
 
   .leader-rank {
     width: 48px;
+  }
+}
+
+@media (max-width: 560px) {
+  .care-action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .action-btn-inline,
+  .action-btn-treasure {
+    width: 100%;
+  }
+
+  .action-btn-inline {
+    min-height: 72px;
   }
 }
