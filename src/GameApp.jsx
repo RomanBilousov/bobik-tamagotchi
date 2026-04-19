@@ -352,9 +352,20 @@ export default function GameApp({ session, onLogout }) {
     aliveMins = (new Date() - new Date(pet.born_at)) / (1000 * 60);
   }
   const statusMessage = getStatusMessage(pet, aliveMins, t);
+  const evolution = getEvolutionData(aliveMins, t);
+  const evolutionProgress = evolution.nextT
+    ? ((aliveMins - evolution.currentT) / (evolution.nextT - evolution.currentT)) * 100
+    : 100;
   const canFeed = Boolean(pet && pet.energy >= 5);
   const canPlay = Boolean(pet && pet.energy >= 10);
   const canWork = Boolean(pet && pet.energy >= 20 && pet.hunger >= 30);
+  const needsCare = Boolean(pet && (pet.hunger < 20 || pet.energy < 20 || pet.happiness < 20));
+  const petStateTone = pet?.isSick ? 'danger' : needsCare ? 'warning' : 'stable';
+  const petStateLabel = pet?.isSick
+    ? t('pet_state_sick')
+    : needsCare
+      ? t('pet_state_warning')
+      : t('pet_state_stable');
 
   return (
     <div className="game-container">
@@ -446,27 +457,40 @@ export default function GameApp({ session, onLogout }) {
                 </div>
 
                 <div className="pet-status pet-status-card">
-                  <div className="pet-name">
-                    Bobik <span className="pet-evolution-name">{getEvolutionData(aliveMins, t).name}</span>
+                  <div className="pet-status-head">
+                    <div className="pet-identity-block">
+                      <div className="pet-stage-kicker">{t('pet_profile_label')}</div>
+                      <div className="pet-name-row">
+                        <div className="pet-name">Bobik</div>
+                        <span className="pet-evolution-chip">{evolution.name}</span>
+                      </div>
+                    </div>
+
+                    <div className={`pet-state-pill pet-state-pill--${petStateTone}`}>
+                      {petStateLabel}
+                    </div>
                   </div>
 
-                  {(() => {
-                    const evolution = getEvolutionData(aliveMins, t);
-                    if (!evolution.nextT) {
-                      return null;
-                    }
-
-                    const progress = ((aliveMins - evolution.currentT) / (evolution.nextT - evolution.currentT)) * 100;
-                    return (
-                      <div className="pet-evolution-progress">
-                        <div style={{width: `${Math.min(100, Math.max(0, progress))}%`, height: '100%', background: '#fbbf24', transition: 'width 1s linear'}}/>
-                      </div>
-                    );
-                  })()}
-
-                  <div className="pet-status-msg" style={{color: pet.isSick ? '#ef4444' : 'var(--text-primary)'}}>
+                  <div className={`pet-status-msg ${pet.isSick ? 'pet-status-msg-danger' : ''}`}>
                     {statusMessage}
-                    {pet.isSick && <div style={{fontSize: '0.85rem', marginTop: '0.1rem'}}>{t('disease_warning')}</div>}
+                  </div>
+
+                  {pet.isSick ? (
+                    <div className="pet-warning-note">{t('disease_warning')}</div>
+                  ) : null}
+
+                  <div className="pet-progress-card">
+                    <div className="pet-progress-header">
+                      <span>{t('pet_growth_label')}</span>
+                      <span>{evolution.nextT ? `${Math.round(Math.min(100, Math.max(0, evolutionProgress)))}%` : t('pet_growth_complete')}</span>
+                    </div>
+
+                    <div className="pet-evolution-progress">
+                      <div
+                        className="pet-evolution-progress-fill"
+                        style={{ width: `${Math.min(100, Math.max(0, evolutionProgress))}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
