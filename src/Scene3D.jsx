@@ -294,7 +294,7 @@ function PetHat({ hatId }) {
   switch (hatId) {
     case 'baseball_cap':
       return (
-        <group position={[0, 0.2, 0.02]} rotation={[0.08, 0, 0]}>
+        <group position={[0, 0.36, 0.02]} rotation={[0.08, 0, 0]}>
           <RoundedBox args={[0.54, 0.18, 0.46]} radius={0.12} smoothness={4} position={[0, 0.08, -0.04]} castShadow>
             <meshPhysicalMaterial color="#2563eb" roughness={0.48} clearcoat={0.08} />
           </RoundedBox>
@@ -308,7 +308,7 @@ function PetHat({ hatId }) {
       );
     case 'beanie':
       return (
-        <group position={[0, 0.21, 0.01]}>
+        <group position={[0, 0.37, 0.01]}>
           <RoundedBox args={[0.48, 0.3, 0.44]} radius={0.18} smoothness={4} position={[0, 0.07, 0]} castShadow>
             <meshPhysicalMaterial color="#fb7185" roughness={0.58} clearcoat={0.06} />
           </RoundedBox>
@@ -323,7 +323,7 @@ function PetHat({ hatId }) {
       );
     case 'bucket_hat':
       return (
-        <group position={[0, 0.2, 0.02]} rotation={[0.06, 0, 0]}>
+        <group position={[0, 0.36, 0.02]} rotation={[0.06, 0, 0]}>
           <RoundedBox args={[0.32, 0.2, 0.3]} radius={0.06} smoothness={4} position={[0, 0.08, 0]} castShadow>
             <meshPhysicalMaterial color="#f59e0b" roughness={0.56} clearcoat={0.04} />
           </RoundedBox>
@@ -335,7 +335,7 @@ function PetHat({ hatId }) {
       );
     case 'antlers':
       return (
-        <group position={[0, 0.26, 0.02]} scale={0.86}>
+        <group position={[0, 0.42, 0.02]} scale={0.86}>
           <RoundedBox args={[0.5, 0.07, 0.14]} radius={0.03} smoothness={2} position={[0, -0.06, 0]}>
             <meshPhysicalMaterial color="#8b5a2b" roughness={0.75} />
           </RoundedBox>
@@ -365,7 +365,7 @@ function PetHat({ hatId }) {
       );
     case 'beer_hat':
       return (
-        <group position={[0, 0.22, 0.02]} scale={0.84}>
+        <group position={[0, 0.38, 0.02]} scale={0.84}>
           <RoundedBox args={[0.54, 0.06, 0.48]} radius={0.03} smoothness={4} position={[0, -0.02, 0]} castShadow>
             <meshPhysicalMaterial color="#16a34a" roughness={0.46} clearcoat={0.08} />
           </RoundedBox>
@@ -389,7 +389,7 @@ function PetHat({ hatId }) {
       );
     case LEGACY_HAT_ID:
       return (
-        <group position={[0, 0.39, 0.03]} rotation={[0.02, 0, 0]} scale={0.9}>
+        <group position={[0, 0.41, 0.03]} rotation={[0.02, 0, 0]} scale={0.9}>
           <mesh position={[0, 0, 0]} castShadow>
             <cylinderGeometry args={[0.36, 0.44, 0.05, 24]} />
             <meshPhysicalMaterial color="#6d28d9" roughness={0.45} clearcoat={0.2} />
