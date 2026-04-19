@@ -454,15 +454,45 @@ export default function GameApp({ session, onLogout }) {
                   <div className="pet-display-canvas">
                     <Scene3D isSick={pet.isSick} aliveMins={aliveMins} hasHat={pet.hasHat} genetics={pet.genetics} environment={pet.environment} actionState={actionState} onPetClick={handlePetClick} />
                   </div>
+
+                  <div className="pet-scene-overlay">
+                    <div className="pet-scene-topbar">
+                      <div className="pet-scene-growth-card">
+                        <div className="pet-scene-growth-header">
+                          <span>{t('pet_growth_label')}</span>
+                          <span>{evolution.nextT ? `${Math.round(Math.min(100, Math.max(0, evolutionProgress)))}%` : t('pet_growth_complete')}</span>
+                        </div>
+                        <div className="pet-scene-growth-bar">
+                          <div
+                            className="pet-scene-growth-fill"
+                            style={{ width: `${Math.min(100, Math.max(0, evolutionProgress))}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="pet-scene-chip-stack">
+                        <span className="pet-evolution-chip pet-evolution-chip--scene">{evolution.name}</span>
+                        <span className={`pet-state-pill pet-state-pill--${petStateTone} pet-state-pill--scene`}>{petStateLabel}</span>
+                      </div>
+                    </div>
+
+                    {(pet.isSick || needsCare) ? (
+                      <div className={`pet-scene-alert pet-scene-alert--${petStateTone}`}>
+                        <div className="pet-scene-alert-title">{statusMessage}</div>
+                        {pet.isSick ? (
+                          <div className="pet-scene-alert-copy">{t('disease_warning')}</div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="pet-status pet-status-card">
-                  <div className="pet-status-head">
+                  <div className="pet-status-head pet-status-head-compact">
                     <div className="pet-identity-block">
                       <div className="pet-stage-kicker">{t('pet_profile_label')}</div>
                       <div className="pet-name-row">
                         <div className="pet-name">Bobik</div>
-                        <span className="pet-evolution-chip">{evolution.name}</span>
                       </div>
                     </div>
 
@@ -471,26 +501,8 @@ export default function GameApp({ session, onLogout }) {
                     </div>
                   </div>
 
-                  <div className={`pet-status-msg ${pet.isSick ? 'pet-status-msg-danger' : ''}`}>
+                  <div className={`pet-status-msg pet-status-msg-compact ${pet.isSick ? 'pet-status-msg-danger' : ''}`}>
                     {statusMessage}
-                  </div>
-
-                  {pet.isSick ? (
-                    <div className="pet-warning-note">{t('disease_warning')}</div>
-                  ) : null}
-
-                  <div className="pet-progress-card">
-                    <div className="pet-progress-header">
-                      <span>{t('pet_growth_label')}</span>
-                      <span>{evolution.nextT ? `${Math.round(Math.min(100, Math.max(0, evolutionProgress)))}%` : t('pet_growth_complete')}</span>
-                    </div>
-
-                    <div className="pet-evolution-progress">
-                      <div
-                        className="pet-evolution-progress-fill"
-                        style={{ width: `${Math.min(100, Math.max(0, evolutionProgress))}%` }}
-                      />
-                    </div>
                   </div>
                 </div>
               </div>
