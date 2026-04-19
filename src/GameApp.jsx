@@ -224,7 +224,7 @@ export default function GameApp({ session, onLogout }) {
 
     playSound('play');
     triggerParticle('💰');
-    showFlyout(event, `+${earned} 🪙`, '#fbbf24');
+    showFlyout(event, `+${earned} ${t('coins_short')}`, '#fbbf24');
     triggerActionAnim('work', 4000);
   };
 
@@ -248,7 +248,7 @@ export default function GameApp({ session, onLogout }) {
       syncAction({ coins: pet.coins - 30, hunger: pet.hunger + 50, happiness: pet.happiness + 10 });
       playSound('feed');
       triggerParticle('🥩');
-      showFlyout(event, '-30 🪙', '#ef4444');
+      showFlyout(event, `-30 ${t('coins_short')}`, '#ef4444');
     }
   };
 
@@ -266,7 +266,7 @@ export default function GameApp({ session, onLogout }) {
       syncAction({ coins: pet.coins - 200, hasHat: true });
       playSound('play');
       triggerParticle('✨');
-      showFlyout(event, '-200 🪙', '#ef4444');
+      showFlyout(event, `-200 ${t('coins_short')}`, '#ef4444');
     }
   };
 

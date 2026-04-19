@@ -1,4 +1,14 @@
+import { Coins } from 'lucide-react';
 import { t } from '../../i18n';
+
+function PriceBadge({ amount }) {
+  return (
+    <span className="price-badge">
+      <span>{amount}</span>
+      <Coins size={16} className="price-badge-icon" />
+    </span>
+  );
+}
 
 export default function ShopPanel({
   pet,
@@ -22,7 +32,7 @@ export default function ShopPanel({
           <div className="shop-item-desc">{t('steak_desc')}</div>
         </div>
         <button className="shop-item-buy" disabled={pet.coins < 30} onClick={onBuyPremiumFood}>
-          30 🪙
+          <PriceBadge amount={30} />
         </button>
       </div>
 
@@ -33,7 +43,7 @@ export default function ShopPanel({
           <div className="shop-item-desc">{t('pill_desc')}</div>
         </div>
         <button className="shop-item-buy" disabled={pet.coins < 50 || !pet.isSick} onClick={onBuyMedicine}>
-          {pet.isSick ? '50 🪙' : t('healthy')}
+          {pet.isSick ? <PriceBadge amount={50} /> : t('healthy')}
         </button>
       </div>
 
@@ -45,7 +55,7 @@ export default function ShopPanel({
             <div className="shop-item-desc">{t('hat_desc')}</div>
           </div>
           <button className="shop-item-buy" disabled={pet.coins < 200} onClick={onBuyMagicHat}>
-            200 🪙
+            <PriceBadge amount={200} />
           </button>
         </div>
       )}
@@ -58,7 +68,7 @@ export default function ShopPanel({
             <div className="shop-item-desc">{t('env_sunset_desc')}</div>
           </div>
           <button className="shop-item-buy" disabled={pet.coins < 100} onClick={onBuyEnvSunset}>
-            100 🪙
+            <PriceBadge amount={100} />
           </button>
         </div>
       )}
@@ -71,11 +81,10 @@ export default function ShopPanel({
             <div className="shop-item-desc">{t('env_night_desc')}</div>
           </div>
           <button className="shop-item-buy" disabled={pet.coins < 300} onClick={onBuyEnvNight}>
-            300 🪙
+            <PriceBadge amount={300} />
           </button>
         </div>
       )}
     </div>
   );
 }
-

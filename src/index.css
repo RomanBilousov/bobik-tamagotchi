@@ -674,6 +674,19 @@ body {
   transition: all 0.2s;
 }
 
+.price-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.price-badge-icon {
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
 .shop-item-buy:hover:not(:disabled) {
   background: var(--primary-hover);
   transform: translateY(-2px);
