@@ -389,16 +389,16 @@ function PetHat({ hatId }) {
       );
     case LEGACY_HAT_ID:
       return (
-        <group position={[0, 0.24, 0.03]} rotation={[0.02, 0, 0]} scale={0.9}>
-          <mesh position={[0, -0.02, 0]} castShadow>
+        <group position={[0, 0.39, 0.03]} rotation={[0.02, 0, 0]} scale={0.9}>
+          <mesh position={[0, 0, 0]} castShadow>
             <cylinderGeometry args={[0.36, 0.44, 0.05, 24]} />
             <meshPhysicalMaterial color="#6d28d9" roughness={0.45} clearcoat={0.2} />
           </mesh>
-          <mesh position={[0, 0.23, 0]} castShadow rotation={[0.08, 0.06, 0]}>
+          <mesh position={[0, 0.25, 0]} castShadow rotation={[0.08, 0.06, 0]}>
             <coneGeometry args={[0.18, 0.48, 24]} />
             <meshPhysicalMaterial color="#7c3aed" roughness={0.4} clearcoat={0.3} />
           </mesh>
-          <mesh position={[0, 0.07, 0]} castShadow>
+          <mesh position={[0, 0.09, 0]} castShadow>
             <cylinderGeometry args={[0.17, 0.2, 0.05, 20]} />
             <meshStandardMaterial color="#fbbf24" roughness={0.35} />
           </mesh>
