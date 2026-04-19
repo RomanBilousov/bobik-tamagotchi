@@ -99,14 +99,16 @@ function renderStats(dashboard) {
   return [
     '<b>Bobik Admin</b>',
     '',
-    `👥 Игроков: <b>${totals.playersTotal ?? 0}</b>`,
+    `👤 Реальных игроков: <b>${totals.playersTotal ?? 0}</b>`,
+    `🧪 Гостевых профилей: <b>${totals.guestProfiles ?? 0}</b>`,
+    `🗂️ Профилей всего: <b>${totals.profilesTotal ?? 0}</b>`,
     `📱 Telegram-профилей: <b>${totals.telegramPlayers ?? 0}</b>`,
-    `🟢 Активны за 24ч: <b>${totals.active24h ?? 0}</b>`,
-    `📆 Активны за 7д: <b>${totals.active7d ?? 0}</b>`,
+    `🟢 Реально активны за 24ч: <b>${totals.active24h ?? 0}</b>`,
+    `📆 Реально активны за 7д: <b>${totals.active7d ?? 0}</b>`,
     `🔐 Закрепили аккаунт: <b>${totals.securedAccounts ?? 0}</b>`,
-    `🐶 Живых питомцев: <b>${totals.livePets ?? 0}</b>`,
-    `👻 Завершённых забегов: <b>${totals.deadPets ?? 0}</b>`,
-    `🧾 Событий: <b>${totals.eventCount ?? 0}</b>`,
+    `🐶 Живых питомцев у реальных игроков: <b>${totals.livePets ?? 0}</b>`,
+    `👻 Завершённых забегов у реальных игроков: <b>${totals.deadPets ?? 0}</b>`,
+    `🧾 Событий реальных игроков: <b>${totals.eventCount ?? 0}</b>`,
   ].join('\n');
 }
 
@@ -214,7 +216,8 @@ function renderDailySummary(summary) {
     '<b>Сводка за 24 часа</b>',
     `${formatDate(summary?.sinceAt)} → ${formatDate(summary?.untilAt)}`,
     '',
-    `🆕 Новых игроков: <b>${totals.newPlayers ?? 0}</b>`,
+    `🆕 Новых реальных игроков: <b>${totals.newPlayers ?? 0}</b>`,
+    `🧪 Новых гостевых профилей: <b>${totals.newGuestProfiles ?? 0}</b>`,
     `↩️ Возвратов: <b>${totals.returningSessions ?? 0}</b>`,
     `🔐 Закрепили аккаунт: <b>${totals.securedAccounts ?? 0}</b>`,
     `🐶 Новых питомцев: <b>${totals.petsAdopted ?? 0}</b>`,
