@@ -361,11 +361,6 @@ export default function GameApp({ session, onLogout }) {
   const canWork = Boolean(pet && pet.energy >= 20 && pet.hunger >= 30);
   const needsCare = Boolean(pet && (pet.hunger < 20 || pet.energy < 20 || pet.happiness < 20));
   const petStateTone = pet?.isSick ? 'danger' : needsCare ? 'warning' : 'stable';
-  const petStateLabel = pet?.isSick
-    ? t('pet_state_sick')
-    : needsCare
-      ? t('pet_state_warning')
-      : t('pet_state_stable');
 
   return (
     <div className="game-container">
@@ -456,48 +451,29 @@ export default function GameApp({ session, onLogout }) {
                   </div>
 
                   <div className="pet-scene-overlay">
-                    <div className="pet-scene-topbar">
-                      <div className="pet-scene-growth-card">
-                        <div className="pet-scene-growth-header">
-                          <span>{t('pet_growth_label')}</span>
-                          <span>{evolution.nextT ? `${Math.round(Math.min(100, Math.max(0, evolutionProgress)))}%` : t('pet_growth_complete')}</span>
-                        </div>
-                        <div className="pet-scene-growth-bar">
-                          <div
-                            className="pet-scene-growth-fill"
-                            style={{ width: `${Math.min(100, Math.max(0, evolutionProgress))}%` }}
-                          />
-                        </div>
-                      </div>
+                    <div className="pet-scene-name">Bobik</div>
 
-                      <div className="pet-scene-chip-stack">
-                        <span className="pet-evolution-chip pet-evolution-chip--scene">{evolution.name}</span>
-                        <span className={`pet-state-pill pet-state-pill--${petStateTone} pet-state-pill--scene`}>{petStateLabel}</span>
+                    <div className="pet-scene-growth-inline">
+                      <div className="pet-scene-growth-header">
+                        <span>{t('pet_growth_label')}</span>
+                        <span>{evolution.nextT ? `${Math.round(Math.min(100, Math.max(0, evolutionProgress)))}%` : t('pet_growth_complete')}</span>
+                      </div>
+                      <div className="pet-scene-growth-bar">
+                        <div
+                          className="pet-scene-growth-fill"
+                          style={{ width: `${Math.min(100, Math.max(0, evolutionProgress))}%` }}
+                        />
                       </div>
                     </div>
 
                     {(pet.isSick || needsCare) ? (
                       <div className={`pet-scene-alert pet-scene-alert--${petStateTone}`}>
                         <div className="pet-scene-alert-title">{statusMessage}</div>
-                        {pet.isSick ? (
-                          <div className="pet-scene-alert-copy">{t('disease_warning')}</div>
-                        ) : null}
                       </div>
                     ) : null}
-                  </div>
-                </div>
 
-                <div className="pet-status pet-status-card">
-                  <div className="pet-status-head pet-status-head-compact">
-                    <div className="pet-identity-block">
-                      <div className="pet-stage-kicker">{t('pet_profile_label')}</div>
-                      <div className="pet-name-row">
-                        <div className="pet-name">Bobik</div>
-                      </div>
-                    </div>
-
-                    <div className={`pet-state-pill pet-state-pill--${petStateTone}`}>
-                      {petStateLabel}
+                    <div className="pet-scene-footer">
+                      <span className="pet-evolution-chip pet-evolution-chip--scene pet-scene-stage-chip">{evolution.name}</span>
                     </div>
                   </div>
                 </div>
