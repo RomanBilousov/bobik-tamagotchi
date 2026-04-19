@@ -39,7 +39,7 @@ export default function SettingsPanel({
 
       <section className="settings-card">
         <div className="settings-card-copy">
-          <div className="shop-item-title">🌍 {t('language')}</div>
+          <div className="shop-item-title">{t('language')}</div>
           <div className="shop-item-desc">{t('current_lang')}</div>
         </div>
         <button className="shop-item-buy settings-action-btn" onClick={onCycleLang} type="button">
