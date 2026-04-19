@@ -1,5 +1,4 @@
 import { Trophy, Activity, ShoppingCart, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { t } from '../../i18n';
 
 export default function BottomNav({ hasActivePet, activeTab, onTabChange, isSick }) {
@@ -22,16 +21,16 @@ export default function BottomNav({ hasActivePet, activeTab, onTabChange, isSick
           </button>
         </>
       ) : (
-        <Link to="/" className="nav-item active">
+        <button className={`nav-item nav-button-reset ${activeTab !== 'leaderboard' ? 'active' : ''}`} onClick={() => onTabChange('pet')} type="button">
           <Activity size={24} />
           <span>{t('nav_home')}</span>
-        </Link>
+        </button>
       )}
 
-      <Link to="/leaderboard" className="nav-item">
+      <button className={`nav-item nav-button-reset ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => onTabChange('leaderboard')} type="button">
         <Trophy size={24} />
         <span>{t('nav_lb')}</span>
-      </Link>
+      </button>
     </div>
   );
 }

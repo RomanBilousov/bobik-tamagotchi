@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 import Auth from './Auth';
 import GameApp from './GameApp';
-import Leaderboard from './Leaderboard';
 import {
   SUPABASE_CONFIG_ERROR,
   isSupabaseConfigured,
@@ -185,7 +184,7 @@ function App() {
         />
         <Route 
           path="/leaderboard" 
-          element={session ? <Leaderboard /> : <Navigate to="/auth" replace />} 
+          element={session ? <GameApp session={session} onLogout={handleLogout} initialTab="leaderboard" /> : <Navigate to="/auth" replace />} 
         />
       </Routes>
     </BrowserRouter>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Coins } from 'lucide-react';
 import { playSound, toggleMute, getMuteState, setMuteState } from './SoundHelper';
 import Scene3D from './Scene3D';
+import Leaderboard from './Leaderboard';
 import { t, cycleLang, getLang, getNextLang } from './i18n';
 import {
   DEFAULT_PROFILE_NAME,
@@ -41,7 +42,7 @@ function isFranxProfile(name) {
   return name?.trim().toLowerCase() === FRANX_PROFILE_NAME;
 }
 
-export default function GameApp({ session, onLogout }) {
+export default function GameApp({ session, onLogout, initialTab = 'pet' }) {
   const [pet, setPet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
@@ -50,7 +51,7 @@ export default function GameApp({ session, onLogout }) {
   const [flyouts, setFlyouts] = useState([]);
   const [actionState, setActionState] = useState('idle');
   const [playedWarning, setPlayedWarning] = useState(false);
-  const [activeTab, setActiveTab] = useState('pet');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [isMuted, setIsMuted] = useState(getMuteState());
   const [profileName, setProfileName] = useState(DEFAULT_PROFILE_NAME);
   const [savedProfileName, setSavedProfileName] = useState(DEFAULT_PROFILE_NAME);
@@ -60,6 +61,10 @@ export default function GameApp({ session, onLogout }) {
   const [accountNewPassword, setAccountNewPassword] = useState('');
   const [accountConfirmPassword, setAccountConfirmPassword] = useState('');
   const actionLockRef = useRef(false);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   const reportError = useCallback((error, fallback = t('sync_error')) => {
     setErrorMessage(error?.message || fallback);
@@ -596,7 +601,9 @@ export default function GameApp({ session, onLogout }) {
       </div>
 
       <div className="game-content-shell">
-        {!pet ? (
+        {activeTab === 'leaderboard' ? (
+          <Leaderboard />
+        ) : !pet ? (
           <div className="auth-container" style={{ padding: 0 }}>
             <div className="glass-card">
               <h2>{t('adopt_pet')}</h2>
