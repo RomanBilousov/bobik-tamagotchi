@@ -16,7 +16,6 @@ import { syncLocalSettingsFromProfile } from './lib/storage/legacyLocalStorage';
 import BottomNav from './components/game/BottomNav';
 import SettingsPanel from './components/game/SettingsPanel';
 import ShopPanel from './components/game/ShopPanel';
-import StatBar from './components/game/StatBar';
 import {
   adoptPet,
   loadGameData,
@@ -361,6 +360,11 @@ export default function GameApp({ session, onLogout }) {
   const canWork = Boolean(pet && pet.energy >= 20 && pet.hunger >= 30);
   const needsCare = Boolean(pet && (pet.hunger < 20 || pet.energy < 20 || pet.happiness < 20));
   const petStateTone = pet?.isSick ? 'danger' : needsCare ? 'warning' : 'stable';
+  const sceneStats = [
+    { key: 'hunger', label: STATS.hunger.label, value: pet?.hunger ?? 0, colorClass: STATS.hunger.color },
+    { key: 'energy', label: STATS.energy.label, value: pet?.energy ?? 0, colorClass: STATS.energy.color },
+    { key: 'happiness', label: STATS.happiness.label, value: pet?.happiness ?? 0, colorClass: STATS.happiness.color },
+  ];
 
   return (
     <div className="game-container">
@@ -474,68 +478,45 @@ export default function GameApp({ session, onLogout }) {
 
                     <div className="pet-scene-footer">
                       <span className="pet-evolution-chip pet-evolution-chip--scene pet-scene-stage-chip">{evolution.name}</span>
+                      <div className="pet-scene-stats">
+                        {sceneStats.map((stat) => (
+                          <div key={stat.key} className="pet-scene-stat">
+                            <span className="pet-scene-stat-label">{stat.label}</span>
+                            <div className="pet-scene-stat-track">
+                              <div
+                                className={`pet-scene-stat-fill ${stat.colorClass}`}
+                                style={{ width: `${Math.max(0, Math.min(100, stat.value))}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </section>
-
-            <aside className="game-side-column">
-              <div className="game-panel-card care-panel">
-                <div className="care-action-row">
-                  <div className="care-stat">
-                    <StatBar
-                      label={STATS.hunger.label}
-                      value={pet.hunger}
-                      colorClass={STATS.hunger.color}
-                      description={t('hunger_hint')}
-                    />
-                  </div>
-                  <button className="action-btn action-btn-inline btn-act-feed" onClick={actFeed} disabled={!canFeed} type="button">
+                <div className="pet-action-dock">
+                  <button className="action-btn action-btn-toolbar btn-act-feed" onClick={actFeed} disabled={!canFeed} type="button">
                     <span className="action-btn-icon">🍖</span>
                     <span>{t('action_food')}</span>
                   </button>
-                </div>
 
-                <div className="care-action-row">
-                  <div className="care-stat">
-                    <StatBar
-                      label={STATS.energy.label}
-                      value={pet.energy}
-                      colorClass={STATS.energy.color}
-                      description={t('energy_hint')}
-                    />
-                  </div>
-                  <button className="action-btn action-btn-inline btn-act-sleep" onClick={actSleep} type="button">
+                  <button className="action-btn action-btn-toolbar btn-act-sleep" onClick={actSleep} type="button">
                     <span className="action-btn-icon">💤</span>
                     <span>{t('action_sleep_btn')}</span>
                   </button>
-                </div>
 
-                <div className="care-action-row">
-                  <div className="care-stat">
-                    <StatBar
-                      label={STATS.happiness.label}
-                      value={pet.happiness}
-                      colorClass={STATS.happiness.color}
-                      description={t('happiness_hint')}
-                    />
-                  </div>
-                  <button className="action-btn action-btn-inline btn-act-play" onClick={actPlay} disabled={!canPlay} type="button">
+                  <button className="action-btn action-btn-toolbar btn-act-play" onClick={actPlay} disabled={!canPlay} type="button">
                     <span className="action-btn-icon">🎾</span>
                     <span>{t('action_play_btn')}</span>
                   </button>
-                </div>
 
-                <button className="action-btn action-btn-treasure btn-act-work" onClick={actWork} disabled={!canWork} type="button">
-                  <span className="action-btn-icon action-btn-icon-large">💎</span>
-                  <span className="action-btn-copy">
-                    <span className="action-btn-title">{t('action_treasure')}</span>
-                    <span className="action-btn-subtitle">{t('action_treasure_hint')}</span>
-                  </span>
-                </button>
+                  <button className="action-btn action-btn-toolbar btn-act-work" onClick={actWork} disabled={!canWork} type="button">
+                    <span className="action-btn-icon">💎</span>
+                    <span>{t('action_treasure')}</span>
+                  </button>
+                </div>
               </div>
-            </aside>
+            </section>
           </div>
         )}
       </div>
