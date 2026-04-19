@@ -10,53 +10,62 @@ export default function SettingsPanel({
   onLogout,
 }) {
   return (
-    <div className="shop-grid">
-      <h2 style={{fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem'}}>{t('settings_title')}</h2>
-      <p style={{color: 'var(--text-secondary)', marginBottom: '1rem'}}>
-        {t('settings_desc')}
-      </p>
+    <div className="shop-grid screen-surface settings-screen">
+      <div className="screen-header">
+        <span className="screen-kicker">{t('nav_settings')}</span>
+        <h2 className="screen-title">{t('settings_title')}</h2>
+        <p className="screen-description">{t('settings_desc')}</p>
+      </div>
 
-      <div className="shop-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1rem' }}>
-        <div className="shop-item-info">
+      <section className="settings-card settings-card--form">
+        <div className="settings-card-copy">
           <div className="shop-item-title">{t('profile')}</div>
           <div className="shop-item-desc">{t('profile_desc')}</div>
         </div>
-        <input type="text" value={profileName} onChange={(event) => onProfileNameChange(event.target.value)} placeholder={t('your_name')} style={{background: 'rgba(0,0,0,0.2)', color: 'white', border: '1px solid var(--glass-border)', padding: '0.75rem', borderRadius: '12px'}} />
-        <button className="shop-item-buy" onClick={onSaveProfile}>
-          {t('save_data')}
-        </button>
-      </div>
 
-      <div className="shop-item">
-        <div className="shop-item-info">
+        <div className="settings-input-row">
+          <input
+            className="settings-input"
+            type="text"
+            value={profileName}
+            onChange={(event) => onProfileNameChange(event.target.value)}
+            placeholder={t('your_name')}
+          />
+          <button className="shop-item-buy settings-action-btn" onClick={onSaveProfile} type="button">
+            {t('save_data')}
+          </button>
+        </div>
+      </section>
+
+      <section className="settings-card">
+        <div className="settings-card-copy">
           <div className="shop-item-title">🌍 {t('language')}</div>
           <div className="shop-item-desc">{t('current_lang')}</div>
         </div>
-        <button className="shop-item-buy" onClick={onCycleLang}>
+        <button className="shop-item-buy settings-action-btn" onClick={onCycleLang} type="button">
           {getLang().toUpperCase()}
         </button>
-      </div>
+      </section>
 
-      <div className="shop-item">
-        <div className="shop-item-info">
+      <section className="settings-card">
+        <div className="settings-card-copy">
           <div className="shop-item-title">{t('sfx')}</div>
           <div className="shop-item-desc">{isMuted ? t('sfx_off') : t('sfx_on')}</div>
         </div>
-        <button className="shop-item-buy" onClick={onToggleMute}>
+        <button className="shop-item-buy settings-action-btn" onClick={onToggleMute} type="button">
           {isMuted ? t('turn_on_sound') : t('turn_off_sound')}
         </button>
-      </div>
+      </section>
 
-      <div className="shop-item" style={{border: '1px solid rgba(239, 68, 68, 0.4)'}}>
-        <div className="shop-item-info">
-          <div className="shop-item-title" style={{color: '#ef4444'}}>{t('exit_game')}</div>
+      <section className="settings-card settings-card--danger">
+        <div className="settings-card-copy">
+          <div className="settings-danger-title">{t('exit_game')}</div>
           <div className="shop-item-desc">{t('exit_desc')}</div>
         </div>
-        <button className="shop-item-buy" style={{background: '#ef4444'}} onClick={onLogout}>
+        <button className="shop-item-buy settings-action-btn settings-action-btn--danger" onClick={onLogout} type="button">
           {t('exit_btn')}
         </button>
-      </div>
+      </section>
     </div>
   );
 }
-

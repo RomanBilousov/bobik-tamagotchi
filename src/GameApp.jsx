@@ -356,7 +356,7 @@ export default function GameApp({ session, onLogout }) {
   return (
     <div className="game-container">
       {errorMessage ? (
-        <div className="glass-card" style={{ padding: '1rem', marginBottom: '1rem', border: '1px solid rgba(239, 68, 68, 0.35)', color: '#fecaca' }}>
+        <div className="app-alert">
           {errorMessage}
         </div>
       ) : null}
@@ -381,10 +381,10 @@ export default function GameApp({ session, onLogout }) {
               {pet.environment === 'day' ? t('day') : (pet.environment === 'sunset' ? t('sunset') : t('night'))}
             </button>
 
-            <div className="coins-display" onClick={() => setActiveTab('shop')}>
+            <button className="coins-display coins-display-button" onClick={() => setActiveTab('shop')} type="button">
               <Coins size={16} />
-              <span style={{fontSize: '1.2rem', marginLeft: '0.2rem'}}>{pet.coins || 0}</span>
-            </div>
+              <span className="coins-display-value">{pet.coins || 0}</span>
+            </button>
           </div>
         )}
       </div>

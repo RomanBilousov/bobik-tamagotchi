@@ -10,6 +10,34 @@ function PriceBadge({ amount }) {
   );
 }
 
+function ShopItem({
+  icon,
+  title,
+  description,
+  status,
+  statusTone = 'muted',
+  disabled,
+  onClick,
+  action,
+  tone = 'default',
+}) {
+  return (
+    <div className={`shop-item shop-item--${tone}`}>
+      <div className="shop-item-icon" aria-hidden="true">{icon}</div>
+      <div className="shop-item-info">
+        <div className="shop-item-header">
+          <div className="shop-item-title">{title}</div>
+          <span className={`status-badge status-badge--${statusTone}`}>{status}</span>
+        </div>
+        <div className="shop-item-desc">{description}</div>
+      </div>
+      <button className="shop-item-buy" disabled={disabled} onClick={onClick} type="button">
+        {action}
+      </button>
+    </div>
+  );
+}
+
 export default function ShopPanel({
   pet,
   onBuyPremiumFood,
@@ -18,73 +46,96 @@ export default function ShopPanel({
   onBuyEnvSunset,
   onBuyEnvNight,
 }) {
+  const canBuySteak = pet.coins >= 30;
+  const canBuyMedicine = pet.coins >= 50 && pet.isSick;
+  const canBuyHat = pet.coins >= 200 && !pet.hasHat;
+  const canBuySunset = pet.coins >= 100 && pet.environment !== 'sunset';
+  const canBuyNight = pet.coins >= 300 && pet.environment !== 'night';
+
   return (
-    <div className="shop-grid">
-      <h2 style={{fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem'}}>{t('shop_title')}</h2>
-      <p style={{color: 'var(--text-secondary)', marginBottom: '1rem'}}>
-        {t('shop_desc')}
-      </p>
-
-      <div className="shop-item">
-        <div className="shop-item-icon">🥩</div>
-        <div className="shop-item-info">
-          <div className="shop-item-title">{t('super_steak')}</div>
-          <div className="shop-item-desc">{t('steak_desc')}</div>
-        </div>
-        <button className="shop-item-buy" disabled={pet.coins < 30} onClick={onBuyPremiumFood}>
-          <PriceBadge amount={30} />
-        </button>
+    <div className="shop-grid screen-surface">
+      <div className="screen-header">
+        <span className="screen-kicker">{t('nav_shop')}</span>
+        <h2 className="screen-title">{t('shop_title')}</h2>
+        <p className="screen-description">{t('shop_desc')}</p>
       </div>
 
-      <div className="shop-item" style={{border: pet.isSick ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.1)'}}>
-        <div className="shop-item-icon">💊</div>
-        <div className="shop-item-info">
-          <div className="shop-item-title">{t('health_pill')}</div>
-          <div className="shop-item-desc">{t('pill_desc')}</div>
-        </div>
-        <button className="shop-item-buy" disabled={pet.coins < 50 || !pet.isSick} onClick={onBuyMedicine}>
-          {pet.isSick ? <PriceBadge amount={50} /> : t('healthy')}
-        </button>
-      </div>
+      <ShopItem
+        icon="🥩"
+        title={t('super_steak')}
+        description={t('steak_desc')}
+        status={canBuySteak ? t('shop_state_ready') : t('shop_state_need_coins')}
+        statusTone={canBuySteak ? 'ready' : 'muted'}
+        disabled={!canBuySteak}
+        onClick={onBuyPremiumFood}
+        action={<PriceBadge amount={30} />}
+      />
 
-      {!pet.hasHat && (
-        <div className="shop-item">
-          <div className="shop-item-icon">🎩</div>
-          <div className="shop-item-info">
-            <div className="shop-item-title">{t('magic_hat')}</div>
-            <div className="shop-item-desc">{t('hat_desc')}</div>
-          </div>
-          <button className="shop-item-buy" disabled={pet.coins < 200} onClick={onBuyMagicHat}>
-            <PriceBadge amount={200} />
-          </button>
-        </div>
-      )}
+      <ShopItem
+        icon="💊"
+        title={t('health_pill')}
+        description={t('pill_desc')}
+        status={pet.isSick ? t('shop_state_urgent') : t('healthy')}
+        statusTone={pet.isSick ? 'danger' : 'owned'}
+        disabled={!canBuyMedicine}
+        onClick={onBuyMedicine}
+        action={pet.isSick ? <PriceBadge amount={50} /> : t('healthy')}
+        tone={pet.isSick ? 'danger' : 'default'}
+      />
 
-      {pet.environment !== 'sunset' && (
-        <div className="shop-item">
-          <div className="shop-item-icon">🌅</div>
-          <div className="shop-item-info">
-            <div className="shop-item-title">{t('env_sunset')}</div>
-            <div className="shop-item-desc">{t('env_sunset_desc')}</div>
-          </div>
-          <button className="shop-item-buy" disabled={pet.coins < 100} onClick={onBuyEnvSunset}>
-            <PriceBadge amount={100} />
-          </button>
-        </div>
-      )}
+      <ShopItem
+        icon="🎩"
+        title={t('magic_hat')}
+        description={t('hat_desc')}
+        status={
+          pet.hasHat
+            ? t('shop_state_owned')
+            : canBuyHat
+              ? t('shop_state_ready')
+              : t('shop_state_need_coins')
+        }
+        statusTone={pet.hasHat ? 'owned' : canBuyHat ? 'ready' : 'muted'}
+        disabled={!canBuyHat}
+        onClick={onBuyMagicHat}
+        action={pet.hasHat ? t('shop_state_owned') : <PriceBadge amount={200} />}
+        tone={pet.hasHat ? 'owned' : 'default'}
+      />
 
-      {pet.environment !== 'night' && (
-        <div className="shop-item">
-          <div className="shop-item-icon">🌃</div>
-          <div className="shop-item-info">
-            <div className="shop-item-title">{t('env_night')}</div>
-            <div className="shop-item-desc">{t('env_night_desc')}</div>
-          </div>
-          <button className="shop-item-buy" disabled={pet.coins < 300} onClick={onBuyEnvNight}>
-            <PriceBadge amount={300} />
-          </button>
-        </div>
-      )}
+      <ShopItem
+        icon="🌅"
+        title={t('env_sunset')}
+        description={t('env_sunset_desc')}
+        status={
+          pet.environment === 'sunset'
+            ? t('shop_state_active')
+            : canBuySunset
+              ? t('shop_state_ready')
+              : t('shop_state_need_coins')
+        }
+        statusTone={pet.environment === 'sunset' ? 'active' : canBuySunset ? 'ready' : 'muted'}
+        disabled={!canBuySunset}
+        onClick={onBuyEnvSunset}
+        action={pet.environment === 'sunset' ? t('shop_state_active') : <PriceBadge amount={100} />}
+        tone={pet.environment === 'sunset' ? 'active' : 'default'}
+      />
+
+      <ShopItem
+        icon="🌃"
+        title={t('env_night')}
+        description={t('env_night_desc')}
+        status={
+          pet.environment === 'night'
+            ? t('shop_state_active')
+            : canBuyNight
+              ? t('shop_state_ready')
+              : t('shop_state_need_coins')
+        }
+        statusTone={pet.environment === 'night' ? 'active' : canBuyNight ? 'ready' : 'muted'}
+        disabled={!canBuyNight}
+        onClick={onBuyEnvNight}
+        action={pet.environment === 'night' ? t('shop_state_active') : <PriceBadge amount={300} />}
+        tone={pet.environment === 'night' ? 'active' : 'default'}
+      />
     </div>
   );
 }
